@@ -105,7 +105,7 @@ def load_final_data():
         df = pd.read_csv('final_school_data.csv')
         df['위도'] = pd.to_numeric(df['위도'], errors='coerce')
         df['경도'] = pd.to_numeric(df['경도'], errors='coerce')
-        return df.dropna(subset=['위도', '경도']) # 💡 [수정] 오타 제거 완료
+        return df.dropna(subset=['위도', '경도'])
     except:
         try:
             df = pd.read_csv('final_school_data.csv', encoding='cp949')
@@ -119,9 +119,9 @@ def load_final_data():
 df_final = load_final_data()
 
 if df_final is not None:
-    # BRANDING HERO SECTION
-    st.markdown('<p class="project-title">EduBridge에듀브릿지</p>', unsafe_allow_html=True)
-    st.markdown('<p class="team-sub">오민도</p>', unsafe_allow_html=True)
+    # BRANDING HERO SECTION (오민도 연구원님 명화 스케일 각인)
+    st.markdown('<p class="project-title">Project EduBridge AI</p>', unsafe_allow_html=True)
+    st.markdown('<p class="team-sub">오민도 (데이터기반 정책혁신 연구단 / Data-Driven Policy Innovation Lab)</p>', unsafe_allow_html=True)
     
     # 상단 지표 카드 레이아웃
     m1, m2, m3 = st.columns(3)
@@ -137,7 +137,7 @@ if df_final is not None:
     # ---------------------------------------------------------
     # SECTION 1: GEOSPATIAL MAP
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:6px;'>1. 대한민국 학교 유형 구분</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:6px;'>1. 대한민국 인프라 양극화 및 취약도 지형도</h2>", unsafe_allow_html=True)
     
     max_schools = len(df_final)
     sample_size = st.slider("지도 시각화 학교 수 조절 (컨트롤러)", min_value=500, max_value=min(10000, max_schools), value=3000, step=500)
@@ -161,7 +161,7 @@ if df_final is not None:
             </div>
             """
             folium.CircleMarker(
-                location=[row['위도'], row['경도']], # 💡 [수정] 위度 오타 완전 박멸
+                location=[row['위도'], row['경도']],
                 radius=5.5,
                 color=color_map[row['유형_라벨']],
                 fill=True, fill_color=color_map[row['유형_라벨']], fill_opacity=0.75,
@@ -174,44 +174,30 @@ if df_final is not None:
     st.markdown("<div style='margin-bottom:40px;'></div>", unsafe_allow_html=True)
 
     # ---------------------------------------------------------
-    # SECTION 2: CHARTS
+    # SECTION 2: CHARTS & FUTURE PROJECTION SIMULATION
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 데이터 분석 시각화 자료 </h2>", unsafe_allow_html=True)
-    c1, c2 = st.columns(2)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 머신러닝 분석 및 미래 여건 시뮬레이션 스튜디오</h2>", unsafe_allow_html=True)
     
-    with c1:
-        st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>K-Means 기반의 학생수, 교원수 산점도</p>", unsafe_allow_html=True)
-        fig, ax = plt.subplots(figsize=(7, 4.5), facecolor='white')
-        sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=color_map, alpha=0.5, s=35, ax=ax, edgecolor='none')
-        ax.set_facecolor('#FAFAFA')
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.set_xlabel('학생 수 (명)', fontsize=10)
-        ax.set_ylabel('교사 수 (명)', fontsize=10)
-        ax.legend(frameon=False, fontsize=9)
-        st.pyplot(fig)
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-    with c2:
-        st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>지자체별 인프라 점수 차트</p>", unsafe_allow_html=True)
-        fig2, ax2 = plt.subplots(figsize=(7, 4.5), facecolor='white')
-        region_order = df_final.groupby('지역')['최종_종합_인프라_점수'].mean().sort_values(ascending=False).index
-        sns.barplot(data=df_final, x='지역', y='최종_종합_인프라_점수', order=region_order, palette='Purples_r', errorbar=None, ax=ax2)
-        ax2.set_facecolor('#FAFAFA')
-        ax2.spines['top'].set_visible(False)
-        ax2.spines['right'].set_visible(False)
-        ax2.set_xlabel('행정구역명', fontsize=10)
-        ax2.set_ylabel('종합 인프라 지수', fontsize=10)
-        plt.xticks(rotation=45, fontsize=9)
-        st.pyplot(fig2)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # 미래 예측 시뮬레이션 인터랙티브 존
+    # 지자체 바 차트가 완전히 빠진 후 스캐터 플롯을 시원한 가로형 벤토 카드로 단독 배치
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-    st.markdown("<p style='font-size:18px; font-weight:700; color:#111827; margin-bottom:2px;'>- 학령인구 감소에 따른 미래 교육 여건 -</p>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#6B7280; font-size:14px; margin-bottom:20px;'>정부의 교원 임용 축소 정책 유무에 따른 교원 1인당 학생 수 예측</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>K-Means 군집 분석 기반 학생-교원 공급 분포도</p>", unsafe_allow_html=True)
+    fig, ax = plt.subplots(figsize=(12, 4.2), facecolor='white')
+    sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=color_map, alpha=0.5, s=35, ax=ax, edgecolor='none')
+    ax.set_facecolor('#FAFAFA')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_color('#E5E7EB')
+    ax.spines['bottom'].set_color('#E5E7EB')
+    ax.set_xlabel('학생 수 (명)', fontsize=10)
+    ax.set_ylabel('교사 수 (명)', fontsize=10)
+    ax.legend(frameon=False, fontsize=9)
+    st.pyplot(fig)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # 연도별 미래 예측 시뮬레이션 인터랙티브 존
+    st.markdown('<div class="bento-card">', unsafe_allow_html=True)
+    st.markdown("<p style='font-size:18px; font-weight:700; color:#111827; margin-bottom:2px;'>- 학령인구 감소에 따른 미래 교육 여건 시뮬레이션 -</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#6B7280; font-size:14px; margin-bottom:20px;'>정부의 교원 임용 축소 정책 유무에 따른 교원 1인당 학생 수 예측 시나리오</p>", unsafe_allow_html=True)
     
     target_year = st.slider("예측 목표 연도를 설정하세요.", min_value=2025, max_value=2030, value=2030, step=1)
     
@@ -252,7 +238,6 @@ if df_final is not None:
         ax_pred.legend(frameon=False, loc='upper right', fontsize=8.5)
         st.pyplot(fig_pred)
         
-    # 💡 [글자 크기 15.5px / 제목 19px / 행간 1.75 개편 및 학술 자료 기반 텍스트 재구성]
     with pred_col2:
         st.markdown(f"""
         <div style="padding-left:18px; border-left:4px solid #8B5CF6; height:100%;">
@@ -273,63 +258,9 @@ if df_final is not None:
     st.markdown('</div>', unsafe_allow_html=True)
 
     # ---------------------------------------------------------
-    # SECTION 2.5: 심층 격차 분석 스튜디오 (로렌츠 곡선 & 확장 해설판)
-    # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-top:30px; margin-bottom:14px;'>2.5 전국 교육 인프라 분배 불평등도에 관한 분석</h2>", unsafe_allow_html=True)
-    c_adv1, c_adv2 = st.columns(2)
-    
-    # 로렌츠 지니계수 연산 블록
-    infra_values = np.sort(df_final['최종_종합_인프라_점수'].values)
-    n = len(infra_values)
-    index = np.arange(1, n + 1)
-    gini = ((np.sum((2 * index - n - 1) * infra_values)) / (n * np.sum(infra_values)))
-    
-    cum_infra = np.cumsum(infra_values) / np.sum(infra_values)
-    cum_population = np.arange(1, n + 1) / n
-        
-    with c_adv1:
-        st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>교육 인프라 자원 분배의 로렌츠 곡선 (Lorenz Curve)</p>", unsafe_allow_html=True)
-        
-        fig_lorenz, ax_lorenz = plt.subplots(figsize=(7, 4.5), facecolor='white')
-        ax_lorenz.plot([0, 1], [0, 1], color='#9CA3AF', linestyle='--', linewidth=1.5, label='완전 평등선 (Gini = 0)')
-        ax_lorenz.plot(cum_population, cum_infra, color='#8B5CF6', linewidth=2.5, label=f'인프라 분배 곡선 (Gini = {gini:.3f})')
-        ax_lorenz.fill_between(cum_population, cum_population, cum_infra, color='#8B5CF6', alpha=0.1)
-        
-        ax_lorenz.set_facecolor('#FAFAFA')
-        ax_lorenz.spines['top'].set_visible(False)
-        ax_lorenz.spines['right'].set_visible(False)
-        ax_lorenz.set_xlabel('학교 누적 비율', fontsize=10)
-        ax_lorenz.set_ylabel('인프라 점수 누적 비율', fontsize=10)
-        ax_lorenz.legend(frameon=False, fontsize=9, loc='upper left')
-        st.pyplot(fig_lorenz)
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-    # 💡 [병렬 좌표 제거 및 로렌츠 곡선 상세 비판적 통찰 해설판 전개]
-    with c_adv2:
-        st.markdown('<div class="bento-card" style="height:100%;">', unsafe_allow_html=True)
-        st.markdown(f"""
-        <div style="padding-left:18px; border-left:4px solid #EC4899; height:100%;">
-            <p style="font-size:19px; font-weight:800; color:#111827; margin-bottom:14px; letter-spacing:-0.5px;">- 로렌츠 곡선 기반 자원 배분 불평등 지표 분석 -</p>
-            <p style="font-size:15.5px; line-height:1.75; color:#374151; text-align:justify;">
-                이 시각화 모델은 소득 양극화를 진단할 때 활용되는 경제학적 통계 기법을 전국 1만여 개 학교의 교육 인프라 데이터에 대입하여 자원 분배의 평등성을 계량화한 본 프로젝트의 핵심 격차 지표입니다. 
-            </p>
-            <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
-                <span style="font-weight:700; color:#4B5563;">- 통계학적 진단 수치: Gini 인덱스 {gini:.3f}</span><br>
-                -> 사회과학적 자원 분배 연구에서 지니계수가 0.4의 임계 지표를 초과하면 대단히 심각한 수준의 불평등 격차 사회로 정의됩니다. 우리 알고리즘이 도출한 <b>{gini:.3f}</b> 스코어는 현재 대한민국 학교들이 입지 조건, 대중교통망, 사교육 자원 접근성 및 교육 예산 인프라에서 얼마나 극심한 불균형 분배 구조에 놓여 있는지를 통계적으로 명백하게 증명합니다.
-            </p>
-            <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
-                <span style="font-weight:700; color:#7C3AED;">- 비판적 통찰 (Critical Insight)</span><br>
-                -> 완전평등선(대각선)과 하단 보라색 곡선 사이의 벌어진 유격 면적은 수도권·대도시 중심부와 도서산간 및 농어촌 간의 인프라 빈부격차가 임계점에 도달했음을 폭로합니다. 현재 교육계는 교원 수급계획과 정원 조정에 매우 소극적이며, 이는 '공교육 전반의 인프라 평등'이라는 허울 좋은 전체 평균의 통계적 착시에 가려져 있습니다. 결국 자원의 지원이 절실한 지방의 고립 학교(C유형)들이 물리적 하드웨어 결핍과 사교육 절벽으로 인해 소멸의 가속 페달을 밟고 있음을 시사하는 강력한 데이터 실증적 증거입니다.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # ---------------------------------------------------------
     # SECTION 3: AI CONSULTANT
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-top:20px; margin-bottom:14px;'>3. 개별 학교에 맞는 해결책 제공합니당 </h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-top:20px; margin-bottom:14px;'>3. 개별 학교 맞춤형 AI 정책 수립 처방전</h2>", unsafe_allow_html=True)
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
     query = st.text_input("조회하려는 맞춤형 학교 이름을 명확히 입력하세요.", placeholder="예: 노형중학교, 개원중학교, 거창중학교")
     
@@ -370,15 +301,4 @@ if df_final is not None:
                 if ed_score < 50:
                     st.markdown("-> **[교육 절벽 구제]** 공교육 내 인공지능 미래형 보조교사 '디지털 튜터' 전담 파견 및 교육청 연계 AI 에듀 바우처 100% 무상 할당")
                 
-                if 'A유형' in s_type:
-                    st.markdown("-> **[과밀학급 해소]** 교육부 산하 '그린스마트 미래학교' 프로젝트 최우선권 배정, 친환경·고성능 모듈러 교실 시스템 즉각 구축")
-                    st.markdown("-> **[정서 케어]** 과밀 밀집도에 의한 교원 피로 완화를 위해 공인 '학교폭력 전담 조사관' 및 Wee클래스 전문 인력 가산 영입")
-                elif 'B유형' in s_type:
-                    st.markdown("-> **[공간 200% 활용]** 정부 국비 매칭 '학교복합시설' 사업 선발: 유휴 공실 스페이스를 주민 공공 도서관 및 거점형 늘봄 센터로 영구 개조")
-                    st.markdown("-> **[신규 유치]** 교육청 공모 '자율형 공립고 2.0' 연계, 인근 첨단 산업/디지털 기술 연계 특화 교육 트랙 개설을 통한 외부 학생 유입 유도")
-                elif 'C유형' in s_type:
-                    st.markdown("-> **[고립 극복]** 교원 수급 불균형에 의한 선택과목 마비를 해소하기 위해 교육청 주관 '메타버스 기반 가상 공동 교육과정' 거점 하드웨어 전면 지원")
-                    st.markdown("-> **[인구 사수]** 로컬 교육 특성을 반영한 지자체 협업 '농산어촌 유학 프로그램' 도입으로 대도시권 유학 인구 파이프라인 개척")
-                    st.markdown("-> **[교원 복지]** 원격 근무 기피 방지를 위한 도교육청 소관 노후 사택 전면 신축 개보수 및 벽지 근무 승진 가산점 상향 상정")
-                    
-    st.markdown('</div>', unsafe_allow_html=True)
+                if '
