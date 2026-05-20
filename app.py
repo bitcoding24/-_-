@@ -66,20 +66,6 @@ st.markdown("""
         margin-top: 2px;
         margin-bottom: 35px;
     }
-    
-    .stTextInput>div>div>input {
-        border-radius: 12px !important;
-        border: 1px solid #E5E7EB !important;
-        padding: 14px 18px !important;
-        font-size: 16px !important;
-        background-color: #F9FAFB !important;
-        transition: all 0.25s ease;
-    }
-    .stTextInput>div>div>input:focus {
-        background-color: #FFFFFF !important;
-        border-color: #8B5CF6 !important;
-        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15) !important;
-    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -119,7 +105,7 @@ def load_final_data():
 df_final = load_final_data()
 
 if df_final is not None:
-    # 전역 컬러 맵 구성 정의 (블록 간 데이터 정합성 보장)
+    # 전역 컬러 맵 구성 정의
     color_map = {'A유형 (과밀/과부하)': '#EF4444', 'B유형 (재정비효율)': '#3B82F6', 'C유형 (소멸위기)': '#10B981'}
 
     # BRANDING HERO SECTION (오민도 연구원님 정식 브랜딩)
@@ -180,7 +166,7 @@ if df_final is not None:
     # ---------------------------------------------------------
     st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 머신러닝 분석 및 미래 여건 시뮬레이션 스튜디오</h2>", unsafe_allow_html=True)
     
-    # 💡 [구조 대혁신] K-Means 산점도 카드 컴포넌트 내부를 크기 반(좌우 분할)으로 쪼개고 정교한 통찰 설명 주입
+    # K-Means 산점도 카드 컴포넌트 (좌우 분할 1.3 : 1 황금 비율)
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
     st.markdown("<p style='font-size:18px; font-weight:700; color:#111827; margin-bottom:2px;'>- K-Means 군집 분석 기반 학생-교원 공급 분포도 -</p>", unsafe_allow_html=True)
     st.markdown("<p style='color:#6B7280; font-size:14px; margin-bottom:20px;'>전국 1만여 개 학교의 총학생수 및 교사수 행렬 데이터를 활용한 인공지능 군집 분할 결과</p>", unsafe_allow_html=True)
@@ -188,7 +174,7 @@ if df_final is not None:
     chart_col1, chart_col2 = st.columns([1.3, 1])
     
     with chart_col1:
-        fig, ax = plt.subplots(figsize=(7.5, 4.6), facecolor='white')
+        fig, ax = plt.subplots(figsize=(7.5, 4.8), facecolor='white')
         sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=color_map, alpha=0.5, s=35, ax=ax, edgecolor='none')
         ax.set_facecolor('#FAFAFA')
         ax.spines['top'].set_visible(False)
@@ -200,20 +186,25 @@ if df_final is not None:
         ax.legend(frameon=False, fontsize=9)
         st.pyplot(fig)
         
+    # 💡 [핵심 패치] 누락되었던 B유형 설명을 추가하고 가독성 리스케일링 적용
     with chart_col2:
         st.markdown(f"""
         <div style="padding-left:18px; border-left:4px solid #6366F1; height:100%;">
             <p style="font-size:19px; font-weight:800; color:#111827; margin-bottom:14px; letter-spacing:-0.5px;">- 인공지능 군집 분할 특성 및 격차 통찰 -</p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; text-align:justify;">
-                전국 학교의 학생 수와 교사 총수 매트릭스를 기반으로 K-Means 알고리즘을 구동한 결과, 대한민국 공교육 생태계는 행정구역 경계를 초월하여 실제 학교가 직면한 내부 자원 수준에 따라 <b>'체급별 양극화 노선'</b>을 명확하게 도출합니다.
+                전국 학교의 학생 수와 교사 총수 매트릭스를 기반으로 알고리즘을 구동한 결과, 대한민국 공교육 생태계는 행정구역 경계를 초월하여 실제 학교가 직면한 내부 자원 공급 수준에 따라 <b>'체급별 양극화 노선'</b>을 명확하게 도출합니다.
             </p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
                 <span style="font-weight:700; color:#EF4444;">- A유형 (과밀/과부하 집단)</span><br>
-                -> 스캐터 플롯 우상단 영역에 길게 분산된 대형 학교 군집입니다. 주로 대도시 및 신도시 중심 학구에 위치해 있으며, 과밀학급화에 따른 교원 업무 과부하와 밀집도가 심각하여 하드웨어적 증축 및 행정 보조인력 우선 배치가 긴급히 제언되는 집단입니다.
+                -> 스캐터 플롯 우상단 영역에 길게 분산된 대형 학교 군집입니다. 주로 대도시 및 신도시 인근 학구에 위치해 있으며, 과밀학급화에 따른 교원 업무 과부하가 심각하여 하드웨어적 교실 증축 및 행정 인력 가산 배치가 긴급히 요구되는 집단입니다.
+            </p>
+            <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
+                <span style="font-weight:700; color:#3B82F6;">- B유형 (재정비 효율화 집단)</span><br>
+                -> 플롯 중앙 지대에 위치한 중형 규모의 군집입니다. 주로 지방 소도시 및 원도심 지대에 입지해 있으며, 학령인구는 감소 추세이나 과거 설치된 학교 인프라 규모가 그대로 유지되어 자원 효율성이 떨어지므로 '학교복합시설 고도화' 및 유휴 공간 재편 정책이 필요한 대상입니다.
             </p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
                 <span style="font-weight:700; color:#10B981;">- C유형 (소멸위기 고립 집단)</span><br>
-                -> 플롯 좌하단 원점 근방에 촘촘하게 결집된 소규모 학교 군집입니다. 원거리 농어촌 및 구도심 지대에 분포되어 있으며, 인구 하락 여파로 공교육 규모의 경제를 완전히 상실하여 교과목 마비 및 물리적 결핍으로 폐교 리스크가 가장 높은 타겟 관리 대상입니다.
+                -> 플롯 좌하단 원점 근방에 밀집된 소규모 학교 군집입니다. 원거리 농어촌 및 인구 감소 직격탄을 맞은 지대에 분포되어 있으며, 공교육 규모의 경제를 완전히 상실하여 교과목 마비 및 폐교 리스크가 가장 높은 최우선 케어 집단입니다.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -280,60 +271,4 @@ if df_final is not None:
             </p>
         </div>
         """, unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    # ---------------------------------------------------------
-    # SECTION 3: AI CONSULTANT
-    # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-top:20px; margin-bottom:14px;'>3. 개별 학교 맞춤형 AI 정책 수립 처방전</h2>", unsafe_allow_html=True)
-    st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-    query = st.text_input("조회하려는 맞춤형 학교 이름을 명확히 입력하세요.", placeholder="예: 노형중학교, 개원중학교, 거창중학교")
-    
-    if query:
-        result = df_final[df_final['학교코드명'].str.contains(query, na=False)]
-        if result.empty:
-            st.markdown(f"<p style='color:#EF4444; font-weight:500;'>- 죄송합니다. '{query}' 학교는 분석 데이터 매칭에 실패했습니다.</p>", unsafe_allow_html=True)
-        else:
-            school = result.iloc[0]
-            s_type = school['유형_라벨']
-            t_score = round(school['최종_종합_인프라_점수'], 1)
-            tr_score = round(school['접근성_점수(100만점)'], 1)
-            ed_score = round(school['교육인프라_점수(100만점)'], 1)
-            s_count = int(school['학생수계'])
-            t_count = int(school['수업교사총수'])
-            ratio = round(s_count / t_count, 1)
-            
-            st.markdown(f"### - {school['학교코드명']} 개별 컨설팅 인덱스 리포트")
-            sc1, sc2 = st.columns([1, 2.2])
-            with sc1:
-                st.markdown(f"""
-                <div style="background:#F9FAFB; padding:22px; border-radius:14px; border:1px solid #E5E7EB;">
-                    <span style="font-size:13px; color:#6B7280; font-weight:600;">AI 군집 클러스터</span><br>
-                    <strong style="font-size:16px; color:{color_map.get(s_type, '#111827')};">{s_type}</strong><br><br>
-                    <span style="font-size:14px; font-weight:700; color:#374151;">• 종합 스코어: {t_score}점</span><br>
-                    <span style="font-size:13px; color:#4B5563;">• 대중교통망: {tr_score}점</span><br>
-                    <span style="font-size:13px; color:#4B5563;">• 교육인프라: {ed_score}점</span><br><br>
-                    <span style="font-size:13px; color:#6B7280; font-weight:600;">내부 교육 밀도</span><br>
-                    <span style="font-size:14px; font-weight:700; color:#374151;">• 교사 1인당 학생: {ratio}명</span>
-                </div>
-                """, unsafe_allow_html=True)
-                
-            with sc2:
-                st.markdown("<p style='font-size:16px; font-weight:600; margin-bottom:10px; color:#8B5CF6;'>- 소관 정부 부처/지자체 연계 핀셋 대응안</p>", unsafe_allow_html=True)
-                if tr_score < 60:
-                    st.markdown("-> **[교통 복지 확충]** 지자체 소관 '수요응답형 대중교통(DRT)' 플랫폼 노선을 하교 시간대에 학교 정문 앞 우선 배차 조치")
-                if ed_score < 50:
-                    st.markdown("-> **[교육 절벽 구제]** 공교육 내 인공지능 미래형 보조교사 '디지털 튜터' 전담 파견 및 교육청 연계 AI 에듀 바우처 100% 무상 할당")
-                
-                if 'A유형' in s_type:
-                    st.markdown("-> **[과밀학급 해소]** 교육부 산하 '그린스마트 미래학교' 프로젝트 최우선권 배정, 친환경·고성능 모듈러 교실 시스템 즉각 구축")
-                    st.markdown("-> **[정서 케어]** 과밀 밀집도에 의한 교원 피로 완화를 위해 공인 '학교폭력 전담 조사관' 및 Wee클래스 전문 인력 가산 영입")
-                elif 'B유형' in s_type:
-                    st.markdown("-> **[공간 200% 활용]** 정부 국비 매칭 '학교복합시설' 사업 선발: 유휴 공실 스페이스를 주민 공공 도서관 및 거점형 늘봄 센터로 영구 개조")
-                    st.markdown("-> **[신규 유치]** 교육청 공모 '자율형 공립고 2.0' 연계, 인근 첨단 산업/디지털 기술 연계 특화 교육 트랙 개설을 통한 외부 학생 유입 유도")
-                elif 'C유형' in s_type:
-                    st.markdown("-> **[고립 극복]** 교원 수급 불균형에 의한 선택과목 마비를 해소하기 위해 교육청 주관 '메타버스 기반 가상 공동 교육과정' 거점 하드웨어 전면 지원")
-                    st.markdown("-> **[인구 사수]** 로컬 교육 특성을 반영한 지자체 협업 '농산어촌 유학 프로그램' 도입으로 대도시권 유학 인구 파이프라인 개척")
-                    st.markdown("-> **[교원 복지]** 원격 근무 기피 방지를 위한 도교육청 소관 노후 사택 전면 신축 개보수 및 벽지 근무 승진 가산점 상향 상정")
-                    
     st.markdown('</div>', unsafe_allow_html=True)
