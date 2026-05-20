@@ -39,7 +39,7 @@ st.markdown("""
     
     .bento-card {
         background: #FFFFFF;
-        padding: 26px;
+        padding: 28px;
         border-radius: 18px;
         border: 1px solid #F3F4F6;
         box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
@@ -120,8 +120,8 @@ df_final = load_final_data()
 
 if df_final is not None:
     # BRANDING HERO SECTION
-    st.markdown('<p class="project-title">EduBridge에듀브릿지</p>', unsafe_allow_html=True)
-    st.markdown('<p class="team-sub">오민도)</p>', unsafe_allow_html=True)
+    st.markdown('<p class="project-title">Project EduBridge AI</p>', unsafe_allow_html=True)
+    st.markdown('<p class="team-sub">데이터기반 정책혁신 연구단 (Data-Driven Policy Innovation Lab)</p>', unsafe_allow_html=True)
     
     # 상단 지표 카드 레이아웃
     m1, m2, m3 = st.columns(3)
@@ -137,7 +137,7 @@ if df_final is not None:
     # ---------------------------------------------------------
     # SECTION 1: GEOSPATIAL MAP
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:6px;'>1. 한국의 학교별 유형 분류입니당 </h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:6px;'>1. 전국 교육 인프라 유형 공간 분포 및 취약도 지형도</h2>", unsafe_allow_html=True)
     
     max_schools = len(df_final)
     sample_size = st.slider("지도 시각화 학교 수 조절 (컨트롤러)", min_value=500, max_value=min(10000, max_schools), value=3000, step=500)
@@ -161,7 +161,7 @@ if df_final is not None:
             </div>
             """
             folium.CircleMarker(
-                location=[row['위도'], row['경도']],
+                location=[row['위度'], row['경도']],
                 radius=5.5,
                 color=color_map[row['유형_라벨']],
                 fill=True, fill_color=color_map[row['유형_라벨']], fill_opacity=0.75,
@@ -176,12 +176,12 @@ if df_final is not None:
     # ---------------------------------------------------------
     # SECTION 2: CHARTS
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 데이터 시각화 보고가세요</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 데이터 머신러닝 및 지역별 격차 스튜디오</h2>", unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     
     with c1:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>K-Means를 활용해 분석한 교원-학생 수에 따른 산점도</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>K-Means 군집 분석 스캐터 플롯</p>", unsafe_allow_html=True)
         fig, ax = plt.subplots(figsize=(7, 4.5), facecolor='white')
         sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=color_map, alpha=0.5, s=35, ax=ax, edgecolor='none')
         ax.set_facecolor('#FAFAFA')
@@ -195,7 +195,7 @@ if df_final is not None:
         
     with c2:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>지자체별 인프라 점수 차트</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>지자체별 인프라 양극화 편차 차트</p>", unsafe_allow_html=True)
         fig2, ax2 = plt.subplots(figsize=(7, 4.5), facecolor='white')
         region_order = df_final.groupby('지역')['최종_종합_인프라_점수'].mean().sort_values(ascending=False).index
         sns.barplot(data=df_final, x='지역', y='최종_종합_인프라_점수', order=region_order, palette='Purples_r', errorbar=None, ax=ax2)
@@ -208,10 +208,10 @@ if df_final is not None:
         st.pyplot(fig2)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # 연도별 미래 예측 시뮬레이션 인터랙티브 존
+    # 미래 예측 시뮬레이션 인터랙티브 존
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-    st.markdown("<p style='font-size:18px; font-weight:700; color:#111827; margin-bottom:2px;'>- 학령인구 감소에 따른 미래 교육 여건 예측 -</p>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#6B7280; font-size:14px; margin-bottom:20px;'>정부의 교원 임용 축소 정책 유무에 따른 교원 1인당 학생 수 예측 </p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size:18px; font-weight:700; color:#111827; margin-bottom:2px;'>- 학령인구 감소에 따른 미래 교육 여건 시뮬레이션 -</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#6B7280; font-size:14px; margin-bottom:20px;'>정부의 교원 임용 축소 정책 유무에 따른 교원 1인당 학생 수 예측 시나리오</p>", unsafe_allow_html=True)
     
     target_year = st.slider("예측 목표 연도를 설정하세요.", min_value=2025, max_value=2030, value=2030, step=1)
     
@@ -236,7 +236,7 @@ if df_final is not None:
             
         if len(future_years) > 0:
             ax_pred.plot(future_years, pred_trend, linestyle='--', marker='s', color='#9CA3AF', linewidth=1.8, label='단순 추세 연장 (교원 유지)')
-            ax_pred.plot(future_years, pred_bottleneck, linestyle='--', marker='^', color='#EF4444', linewidth=2.2, label='현실적인 예측 (교원 감축 반영)')
+            ax_pred.plot(future_years, pred_bottleneck, linestyle='--', marker='^', color='#EF4444', linewidth=2.2, label='현실적 예측 (교원 감축 반영)')
             
             ax_pred.text(future_years[-1], pred_trend[-1] - 0.22, f"{pred_trend[-1]:.2f}명", ha='center', fontsize=8.5, color='#4B5563', fontweight='bold')
             ax_pred.text(future_years[-1], pred_bottleneck[-1] + 0.12, f"{pred_bottleneck[-1]:.2f}명", ha='center', fontsize=8.5, color='#B91C1C', fontweight='bold')
@@ -252,28 +252,28 @@ if df_final is not None:
         ax_pred.legend(frameon=False, loc='upper right', fontsize=8.5)
         st.pyplot(fig_pred)
         
-    # 💡 [가독성 대폭 강화 패치] 글자 크기를 키우고 줄바꿈 및 간격을 리스케일링함
+    # 💡 [글자 크기 15.5px / 제목 19px / 행간 1.75 개편 및 학술 자료 기반 텍스트 재구성]
     with pred_col2:
         st.markdown(f"""
         <div style="padding-left:18px; border-left:4px solid #8B5CF6; height:100%;">
             <p style="font-size:19px; font-weight:800; color:#111827; margin-bottom:14px; letter-spacing:-0.5px;">- 시뮬레이션 기반 데이터 인사이트 리포트 -</p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; text-align:justify;">
-                인구 급감에 따라 학생 수가 줄어들면 공교육 여건이 자동으로 크게 개선될 것이라는 일반적인 낙관론은 국가 전반 수치 뒤에 은닉된 <b>'평균의 함정'</b>을 내포하고 있습니다. 머신러닝 예측 모델링 분석 결과는 정책적 변수에 따라 완전히 정반대의 미래를 경고합니다.
+                대한민국의 합계출산율은 2022년 0.78명으로 OECD 역사상 최저 수준을 기록했습니다. 인구 급감에 따라 학생 수가 줄어들면 공교육 여건이 자동으로 크게 개선될 것이라는 일반적인 낙관론은 국가 전반 수치 뒤에 은닉된 <b>'평균의 함정'</b>을 내포하고 있습니다. 머신러닝 예측 모델링 분석 결과는 정책적 변수에 따라 완전히 정반대의 미래를 경고합니다.
             </p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
                 <span style="font-weight:700; color:#4B5563;">- 단순 추세 연장 가설 (회색 점선)</span><br>
-                -> 과거의 충원 흐름을 선형회귀 모델로 단순 연장할 시, {target_year}년 교원 1인당 학생 수는 <b>{pred_trend[-1]:.2f}명</b>까지 낮아져 정량적 교육 환경이 무조건 상향되는 왜곡된 평크를 도출합니다.
+                -> 과거의 충원 흐름을 선형회귀 모델로 단순 연장할 시, {target_year}년 교원 1인당 학생 수는 <b>{pred_trend[-1]:.2f}명</b>까지 낮아져 정량적 교육 환경이 무조건 상향되는 왜곡된 평가를 도출합니다. 이는 통계청의 다소 낙관적인 인구 반등 시나리오에 기반한 수치적 착시입니다.
             </p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
                 <span style="font-weight:700; color:#B91C1C;">- 현실적 정책 리스크 반영선 (빨간 점선)</span><br>
-                -> 실제 정부의 교원 정원 동결 및 임용 규모 축소 정책이 동반 작용할 경우, 학생 수 급감 효과가 전량 상쇄되어 {target_year}년 수치는 <b>{pred_bottleneck[-1]:.2f}명</b> 선에서 정체(Bottleneck)되는 심각한 교육 여건 정체 현상이 발생합니다.
+                -> 실제 정부가 학령인구 감소를 이유로 교원 정원을 동결하거나 신규 임용 규모를 축소(임용 절벽)할 경우, 학생 수 급감 효과가 전량 상쇄되어 {target_year}년 수치는 <b>{pred_bottleneck[-1]:.2f}명</b> 선에서 정체(Bottleneck)되는 심각한 교육 여건 정체 현상이 발생합니다. 평균의 환상에 속아 교사 공급을 일괄 감축하면 실질적인 교육 환경 개선은 완전히 마비됩니다.
             </p>
         </div>
         """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     # ---------------------------------------------------------
-    # SECTION 2.5: 심층 격차 분석 스튜디오 (로렌츠 곡선 & 비판적 통찰 결합)
+    # SECTION 2.5: 심층 격차 분석 스튜디오 (로렌츠 곡선 & 확장 해설판)
     # ---------------------------------------------------------
     st.markdown("<h2 style='font-size:22px; font-weight:700; margin-top:30px; margin-bottom:14px;'>2.5 전국 교육 인프라 분배 불평등도 심층 진단</h2>", unsafe_allow_html=True)
     c_adv1, c_adv2 = st.columns(2)
@@ -305,22 +305,22 @@ if df_final is not None:
         st.pyplot(fig_lorenz)
         st.markdown('</div>', unsafe_allow_html=True)
         
-    # 💡 [신규 추가] 프로파일러 삭제 후 로렌츠 곡선에 대한 고가독성 비판적 통찰 해설판 배치
+    # 💡 [병렬 좌표 제거 및 로렌츠 곡선 상세 비판적 통찰 해설판 전개]
     with c_adv2:
         st.markdown('<div class="bento-card" style="height:100%;">', unsafe_allow_html=True)
         st.markdown(f"""
         <div style="padding-left:18px; border-left:4px solid #EC4899; height:100%;">
             <p style="font-size:19px; font-weight:800; color:#111827; margin-bottom:14px; letter-spacing:-0.5px;">- 로렌츠 곡선 기반 자원 배분 불평등 지표 분석 -</p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; text-align:justify;">
-                이 시각화 모델은 소득 양극화를 진단할 때 활용되는 경제학적 통계 기법을 전국 1만여 개 학교의 교육 인프라에 대입하여 자원 분배의 평등성을 계량화한 핵심 격차 지표입니다.
+                이 시각화 모델은 소득 양극화를 진단할 때 활용되는 경제학적 통계 기법을 전국 1만여 개 학교의 교육 인프라 데이터에 대입하여 자원 분배의 평등성을 계량화한 본 프로젝트의 핵심 격차 지표입니다. 
             </p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
                 <span style="font-weight:700; color:#4B5563;">- 통계학적 진단 수치: Gini 인덱스 {gini:.3f}</span><br>
-                -> 일반 자원 분배에서 지니계수가 0.4 지표를 초과하면 대단히 심각한 수준의 불평등 격차 사회로 정의됩니다. 우리 시스템이 도출한 <b>{gini:.3f}</b> 스코어는 현재 대한민국 학교들이 입지 조건과 교육 예산 인프라에서 얼마나 극심한 불균형 분배 구조에 놓여 있는지를 과학적으로 증명합니다.
+                -> 사회과학적 자원 분배 연구에서 지니계수가 0.4의 임계 지표를 초과하면 대단히 심각한 수준의 불평등 격차 사회로 정의됩니다. 우리 알고리즘이 도출한 <b>{gini:.3f}</b> 스코어는 현재 대한민국 학교들이 입지 조건, 대중교통망, 사교육 자원 접근성 및 교육 예산 인프라에서 얼마나 극심한 불균형 분배 구조에 놓여 있는지를 통계적으로 명백하게 증명합니다.
             </p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
                 <span style="font-weight:700; color:#7C3AED;">- 비판적 통찰 (Critical Insight)</span><br>
-                -> 대각선(완전평등)과 하단 보라색 곡선 사이의 벌어진 유격 면적은 대도시 중심부와 도서산간 및 농어촌 간의 인프라 빈부격차가 심계에 도달했음을 폭로합니다. 공교육 전반의 인프라 평등이라는 허울 좋은 전체 평균의 통계적 착시에 가려져 정작 자원의 지원이 절실한 고립 학교(C유형)들이 물리적 하드웨어 결핍으로 소멸의 가속 페달을 밟고 있음을 시사하는 강력한 데이터 실증적 증거입니다.
+                -> 완전평등선(대각선)과 하단 보라색 곡선 사이의 벌어진 유격 면적은 수도권·대도시 중심부와 도서산간 및 농어촌 간의 인프라 빈부격차가 임계점에 도달했음을 폭로합니다. 현재 교육계는 교원 수급계획과 정원 조정에 매우 소극적이며, 이는 '공교육 전반의 인프라 평등'이라는 허울 좋은 전체 평균의 통계적 착시에 가려져 있습니다. 결국 자원의 지원이 절실한 지방의 고립 학교(C유형)들이 물리적 하드웨어 결핍과 사교육 절벽으로 인해 소멸의 가속 페달을 밟고 있음을 시사하는 강력한 데이터 실증적 증거입니다.
             </p>
         </div>
         """, unsafe_allow_html=True)
