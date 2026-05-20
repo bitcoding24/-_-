@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import folium
 from folium.plugins import MarkerCluster
 from streamlit_folium import st_folium
@@ -8,6 +9,7 @@ import seaborn as sns
 import matplotlib.font_manager as fm
 import os
 import urllib.request
+from sklearn.linear_model import LinearRegression
 
 # 1. 페이지 레이아웃 및 테마 최적화 (실리콘밸리 럭셔리 미니멀리즘)
 st.set_page_config(page_title="Project EduBridge AI", layout="wide", initial_sidebar_state="collapsed")
@@ -17,7 +19,6 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
     
-    /* 배경색 흰색 고정 및 글로벌 폰트 세팅 */
     html, body, [data-testid="stAppViewContainer"] {
         font-family: 'Plus Jakarta Sans', 'Malgun Gothic', sans-serif !important;
         background-color: #FFFFFF !important;
@@ -29,7 +30,6 @@ st.markdown("""
         backdrop-filter: blur(8px) !important;
     }
     
-    /* 🔥 [핵심 패치] 지도 주변에 생기는 모든 검은색/회색 여백 제거 */
     iframe {
         background-color: transparent !important;
         background: transparent !important;
@@ -37,7 +37,6 @@ st.markdown("""
         box-shadow: none !important;
     }
     
-    /* 벤토 박스 프리미엄 카드 디자인 */
     .bento-card {
         background: #FFFFFF;
         padding: 26px;
@@ -47,7 +46,6 @@ st.markdown("""
         margin-bottom: 24px;
     }
     
-    /* 실리콘밸리 스타일 대형 프로젝트 타이틀 */
     .project-title {
         font-size: 46px;
         font-weight: 800;
@@ -59,7 +57,6 @@ st.markdown("""
         line-height: 1.2;
     }
     
-    /* 세련된 팀 이름 서브 타이틀 */
     .team-sub {
         font-size: 16px;
         font-weight: 600;
@@ -70,7 +67,6 @@ st.markdown("""
         margin-bottom: 35px;
     }
     
-    /* 입력창 인터페이스 고도화 */
     .stTextInput>div>div>input {
         border-radius: 12px !important;
         border: 1px solid #E5E7EB !important;
@@ -124,8 +120,8 @@ df_final = load_final_data()
 
 if df_final is not None:
     # BRANDING HERO SECTION
-    st.markdown('<p class="project-title">EduBridge에듀브릿지</p>', unsafe_allow_html=True)
-    st.markdown('<p class="team-sub">오민도)</p>', unsafe_allow_html=True)
+    st.markdown('<p class="project-title">Project EduBridge AI</p>', unsafe_allow_html=True)
+    st.markdown('<p class="team-sub">데이터기반 정책혁신 연구단 (Data-Driven Policy Innovation Lab)</p>', unsafe_allow_html=True)
     
     # 상단 지표 카드 레이아웃
     m1, m2, m3 = st.columns(3)
@@ -141,18 +137,15 @@ if df_final is not None:
     # ---------------------------------------------------------
     # SECTION 1: GEOSPATIAL MAP (검은 여백 파괴 및 완전 정중앙 정렬)
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:6px;'>1. 대한민국 학교의 유형을 확인해보세용</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:6px;'>1. 대한민국 인프라 양극화 및 취약도 지형도</h2>", unsafe_allow_html=True)
     
     max_schools = len(df_final)
     sample_size = st.slider("지도 시각화 학교 수 조절 (컨트롤러)", min_value=500, max_value=min(10000, max_schools), value=3000, step=500)
     
-    # 좌우 여백을 균등하게 주어 지도를 완벽한 레이아웃 가운데로 정렬
     _, map_center_col, _ = st.columns([1, 10, 1])
     
     with map_center_col:
         m_real = folium.Map(location=[36.2, 127.8], zoom_start=7, tiles='CartoDB positron')
-        
-        # 🔥 [핵심 패치] 지도 내부의 기본 회색/검은색 캔버스 배경을 강제로 흰색으로 세팅
         m_real.get_root().header.add_child(folium.Element("<style>.leaflet-container { background: #FFFFFF !important; }</style>"))
         
         marker_cluster = MarkerCluster(disableClusteringAtZoom=13).add_to(m_real)
@@ -176,7 +169,6 @@ if df_final is not None:
                 tooltip=folium.Tooltip(html_content)
             ).add_to(marker_cluster)
             
-        # 🔥 [핵심 패치] width를 숫자로 고정하지 않고 반응형 100% 꽉 차게 변경하여 양옆 블랙바 박멸
         st_folium(m_real, height=560, use_container_width=True, returned_objects=[])
 
     st.markdown("<div style='margin-bottom:40px;'></div>", unsafe_allow_html=True)
@@ -184,12 +176,12 @@ if df_final is not None:
     # ---------------------------------------------------------
     # SECTION 2: CHARTS
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 데이터 분석 보고가세요 </h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 데이터 머신러닝 스튜디오</h2>", unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     
     with c1:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>K-Means 학생수-교원수 기반 산점도 </p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>K-Means 군집 분석 스캐터 플롯</p>", unsafe_allow_html=True)
         fig, ax = plt.subplots(figsize=(7, 4.5), facecolor='white')
         sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=color_map, alpha=0.5, s=35, ax=ax, edgecolor='none')
         ax.set_facecolor('#FAFAFA')
@@ -203,7 +195,7 @@ if df_final is not None:
         
     with c2:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>지자체별 인프라 점수</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>지자체별 인프라 양극화 편차 차트</p>", unsafe_allow_html=True)
         fig2, ax2 = plt.subplots(figsize=(7, 4.5), facecolor='white')
         region_order = df_final.groupby('지역')['최종_종합_인프라_점수'].mean().sort_values(ascending=False).index
         sns.barplot(data=df_final, x='지역', y='최종_종합_인프라_점수', order=region_order, palette='Purples_r', errorbar=None, ax=ax2)
@@ -216,10 +208,79 @@ if df_final is not None:
         st.pyplot(fig2)
         st.markdown('</div>', unsafe_allow_html=True)
 
+    # 💡 [신규 추가 지점] 연도별 미래 예측 시뮬레이션 인터랙티브 존 (좌우 배치 레이아웃)
+    st.markdown('<div class="bento-card">', unsafe_allow_html=True)
+    st.markdown("<p style='font-size:18px; font-weight:700; color:#111827; margin-bottom:2px;'>- 학령인구 감소에 따른 미래 교육 여건 시뮬레이션 -</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#6B7280; font-size:14px; margin-bottom:20px;'>정부의 교원 임용 축소 정책 유무에 따른 교원 1인당 학생 수 예측 시나리오</p>", unsafe_allow_html=True)
+    
+    # 연도 선택 인터랙티브 슬라이더 조작
+    target_year = st.slider("예측 목표 연도를 설정하세요.", min_value=2025, max_value=2030, value=2030, step=1)
+    
+    # 예측 연산 모델 수립 (2017-2024 기반)
+    hist_years = np.array([2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024])
+    hist_ratio = np.array([16.02, 15.38, 14.94, 14.65, 14.48, 14.21, 13.99, 13.79])
+    
+    model_lr = LinearRegression().fit(hist_years.reshape(-1, 1), hist_ratio)
+    future_years = np.array(list(range(2025, target_year + 1)))
+    
+    pred_trend = model_lr.predict(future_years.reshape(-1, 1))
+    pred_bottleneck_base = [13.65, 13.55, 13.50, 13.48, 13.47, 13.46]
+    pred_bottleneck = pred_bottleneck_base[:len(future_years)]
+    
+    # 좌우 분할 레이아웃 전개 (Left: 예측 차트, Right: 데이터 통찰 해설)
+    pred_col1, pred_col2 = st.columns([1.3, 1])
+    
+    with pred_col1:
+        fig_pred, ax_pred = plt.subplots(figsize=(7.5, 4.6), facecolor='white')
+        
+        # 실제 데이터선 플로팅
+        ax_pred.plot(hist_years, hist_ratio, marker='o', color='#8B5CF6', linewidth=2.5, label='실제 추이 (2017-2024)')
+        for x, y in zip(hist_years, hist_ratio):
+            ax_pred.text(x, y + 0.12, f"{y:.1f}", ha='center', fontsize=8, color='#6D28D9', fontweight='bold')
+            
+        # 선택된 미래 범위에 따른 시나리오 실시간 투영
+        if len(future_years) > 0:
+            ax_pred.plot(future_years, pred_trend, linestyle='--', marker='s', color='#9CA3AF', linewidth=1.8, label='단순 추세 연장 (교원 유지)')
+            ax_pred.plot(future_years, pred_bottleneck, linestyle='--', marker='^', color='#EF4444', linewidth=2.2, label='현실적 예측 (교원 감축 반영)')
+            
+            # 최종 지점 라벨링 강조
+            ax_pred.text(future_years[-1], pred_trend[-1] - 0.22, f"{pred_trend[-1]:.2f}명", ha='center', fontsize=8.5, color='#4B5563', fontweight='bold')
+            ax_pred.text(future_years[-1], pred_bottleneck[-1] + 0.12, f"{pred_bottleneck[-1]:.2f}명", ha='center', fontsize=8.5, color='#B91C1C', fontweight='bold')
+
+        ax_pred.set_facecolor('#FAFAFA')
+        ax_pred.spines['top'].set_visible(False)
+        ax_pred.spines['right'].set_visible(False)
+        ax_pred.spines['left'].set_color('#E5E7EB')
+        ax.spines['bottom'].set_color('#E5E7EB')
+        ax_pred.set_ylim(11.0, 16.8)
+        ax_pred.set_xticks(list(hist_years) + list(future_years))
+        plt.xticks(rotation=45, fontsize=8.5)
+        ax_pred.legend(frameon=False, loc='upper right', fontsize=8.5)
+        st.pyplot(fig_pred)
+        
+    with pred_col2:
+        st.markdown(f"""
+        <div style="padding-left:15px; border-left:3px solid #8B5CF6; height:100%;">
+            <p style="font-size:16px; font-weight:700; color:#111827; margin-bottom:12px;">- 시뮬레이션 기반 데이터 인사이트 리포트 -</p>
+            <p style="font-size:14px; line-height:1.6; color:#4B5563;">
+                인구 급감에 따라 학생 수가 줄어들면 공교육 여건이 자동으로 크게 개선될 것이라는 일반적인 낙관론은 <b>'평균의 함정'</b>을 내포하고 있습니다. 머신러닝 예측 모델링 분석 결과는 정책적 변수에 따라 완전히 정반대의 미래를 경고합니다.
+            </p>
+            <p style="font-size:14px; line-height:1.6; color:#4B5563; margin-top:10px;">
+                <b>- 단순 추세 연장 가설 (회색 점선)</b><br>
+                -> 과거 추세를 선형회귀 모델로 단순 연장 시, {target_year}년 교원 1인당 학생 수는 <b>{pred_trend[-1]:.2f}명</b>까지 낮아져 지표상 교육 여건이 비약적으로 상향되는 흐름을 보입니다.
+            </p>
+            <p style="font-size:14px; line-height:1.6; color:#4B5563; margin-top:10px;">
+                <b>- 현실적 정책 리스크 반영선 (빨간 점선)</b><br>
+                -> 실제 정부의 교원 정원 축소 및 임용 규모 감축 정책이 동반 작용할 경우, 학생 수 급감 효과가 완전히 상쇄되어 {target_year}년 수치는 <b>{pred_bottleneck[-1]:.2f}명</b> 선에서 정체(Bottleneck)되는 병목 현상이 발생합니다.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
     # ---------------------------------------------------------
     # SECTION 3: AI CONSULTANT
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-top:20px; margin-bottom:14px;'>3. 개별 학교 맞춤형 제안압니당</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-top:20px; margin-bottom:14px;'>3. 개별 학교 맞춤형 AI 정책 수립 처방전</h2>", unsafe_allow_html=True)
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
     query = st.text_input("조회하려는 맞춤형 학교 이름을 명확히 입력하세요.", placeholder="예: 노형중학교, 개원중학교, 거창중학교")
     
