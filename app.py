@@ -119,7 +119,10 @@ def load_final_data():
 df_final = load_final_data()
 
 if df_final is not None:
-    # BRANDING HERO SECTION (오민도 연구원님 명화 스케일 각인)
+    # 전역 컬러 맵 구성 정의 (블록 간 데이터 정합성 보장)
+    color_map = {'A유형 (과밀/과부하)': '#EF4444', 'B유형 (재정비효율)': '#3B82F6', 'C유형 (소멸위기)': '#10B981'}
+
+    # BRANDING HERO SECTION (오민도 연구원님 정식 브랜딩)
     st.markdown('<p class="project-title">Project EduBridge AI</p>', unsafe_allow_html=True)
     st.markdown('<p class="team-sub">오민도 (데이터기반 정책혁신 연구단 / Data-Driven Policy Innovation Lab)</p>', unsafe_allow_html=True)
     
@@ -149,7 +152,6 @@ if df_final is not None:
         m_real.get_root().header.add_child(folium.Element("<style>.leaflet-container { background: #FFFFFF !important; }</style>"))
         
         marker_cluster = MarkerCluster(disableClusteringAtZoom=13).add_to(m_real)
-        color_map = {'A유형 (과밀/과부하)': '#EF4444', 'B유형 (재정비효율)': '#3B82F6', 'C유형 (소멸위기)': '#10B981'}
         
         for idx, row in df_final.sample(n=sample_size, random_state=42).iterrows():
             html_content = f"""
@@ -178,20 +180,43 @@ if df_final is not None:
     # ---------------------------------------------------------
     st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 머신러닝 분석 및 미래 여건 시뮬레이션 스튜디오</h2>", unsafe_allow_html=True)
     
-    # 지자체 바 차트가 완전히 빠진 후 스캐터 플롯을 시원한 가로형 벤토 카드로 단독 배치
+    # 💡 [구조 대혁신] K-Means 산점도 카드 컴포넌트 내부를 크기 반(좌우 분할)으로 쪼개고 정교한 통찰 설명 주입
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-    st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>K-Means 군집 분석 기반 학생-교원 공급 분포도</p>", unsafe_allow_html=True)
-    fig, ax = plt.subplots(figsize=(12, 4.2), facecolor='white')
-    sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=color_map, alpha=0.5, s=35, ax=ax, edgecolor='none')
-    ax.set_facecolor('#FAFAFA')
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['left'].set_color('#E5E7EB')
-    ax.spines['bottom'].set_color('#E5E7EB')
-    ax.set_xlabel('학생 수 (명)', fontsize=10)
-    ax.set_ylabel('교사 수 (명)', fontsize=10)
-    ax.legend(frameon=False, fontsize=9)
-    st.pyplot(fig)
+    st.markdown("<p style='font-size:18px; font-weight:700; color:#111827; margin-bottom:2px;'>- K-Means 군집 분석 기반 학생-교원 공급 분포도 -</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#6B7280; font-size:14px; margin-bottom:20px;'>전국 1만여 개 학교의 총학생수 및 교사수 행렬 데이터를 활용한 인공지능 군집 분할 결과</p>", unsafe_allow_html=True)
+    
+    chart_col1, chart_col2 = st.columns([1.3, 1])
+    
+    with chart_col1:
+        fig, ax = plt.subplots(figsize=(7.5, 4.6), facecolor='white')
+        sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=color_map, alpha=0.5, s=35, ax=ax, edgecolor='none')
+        ax.set_facecolor('#FAFAFA')
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_color('#E5E7EB')
+        ax.spines['bottom'].set_color('#E5E7EB')
+        ax.set_xlabel('학생 수 (명)', fontsize=10)
+        ax.set_ylabel('교사 수 (명)', fontsize=10)
+        ax.legend(frameon=False, fontsize=9)
+        st.pyplot(fig)
+        
+    with chart_col2:
+        st.markdown(f"""
+        <div style="padding-left:18px; border-left:4px solid #6366F1; height:100%;">
+            <p style="font-size:19px; font-weight:800; color:#111827; margin-bottom:14px; letter-spacing:-0.5px;">- 인공지능 군집 분할 특성 및 격차 통찰 -</p>
+            <p style="font-size:15.5px; line-height:1.75; color:#374151; text-align:justify;">
+                전국 학교의 학생 수와 교사 총수 매트릭스를 기반으로 K-Means 알고리즘을 구동한 결과, 대한민국 공교육 생태계는 행정구역 경계를 초월하여 실제 학교가 직면한 내부 자원 수준에 따라 <b>'체급별 양극화 노선'</b>을 명확하게 도출합니다.
+            </p>
+            <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
+                <span style="font-weight:700; color:#EF4444;">- A유형 (과밀/과부하 집단)</span><br>
+                -> 스캐터 플롯 우상단 영역에 길게 분산된 대형 학교 군집입니다. 주로 대도시 및 신도시 중심 학구에 위치해 있으며, 과밀학급화에 따른 교원 업무 과부하와 밀집도가 심각하여 하드웨어적 증축 및 행정 보조인력 우선 배치가 긴급히 제언되는 집단입니다.
+            </p>
+            <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
+                <span style="font-weight:700; color:#10B981;">- C유형 (소멸위기 고립 집단)</span><br>
+                -> 플롯 좌하단 원점 근방에 촘촘하게 결집된 소규모 학교 군집입니다. 원거리 농어촌 및 구도심 지대에 분포되어 있으며, 인구 하락 여파로 공교육 규모의 경제를 완전히 상실하여 교과목 마비 및 물리적 결핍으로 폐교 리스크가 가장 높은 타겟 관리 대상입니다.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     # 연도별 미래 예측 시뮬레이션 인터랙티브 존
@@ -285,7 +310,6 @@ if df_final is not None:
                 <div style="background:#F9FAFB; padding:22px; border-radius:14px; border:1px solid #E5E7EB;">
                     <span style="font-size:13px; color:#6B7280; font-weight:600;">AI 군집 클러스터</span><br>
                     <strong style="font-size:16px; color:{color_map.get(s_type, '#111827')};">{s_type}</strong><br><br>
-                    <span style="font-size:13px; color:#6B7280; font-weight:600;">인프라 상세 매트릭스</span><br>
                     <span style="font-size:14px; font-weight:700; color:#374151;">• 종합 스코어: {t_score}점</span><br>
                     <span style="font-size:13px; color:#4B5563;">• 대중교통망: {tr_score}점</span><br>
                     <span style="font-size:13px; color:#4B5563;">• 교육인프라: {ed_score}점</span><br><br>
