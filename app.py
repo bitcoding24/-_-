@@ -105,7 +105,7 @@ def load_final_data():
         df = pd.read_csv('final_school_data.csv')
         df['위도'] = pd.to_numeric(df['위도'], errors='coerce')
         df['경도'] = pd.to_numeric(df['경도'], errors='coerce')
-        return df.dropna(subset=['위도', '경도'])
+        return df.dropna(subset=['위도', '경도']) # 💡 [수정] 오타 제거 완료
     except:
         try:
             df = pd.read_csv('final_school_data.csv', encoding='cp949')
@@ -137,7 +137,7 @@ if df_final is not None:
     # ---------------------------------------------------------
     # SECTION 1: GEOSPATIAL MAP
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:6px;'>1. 전국 교육 인프라 유형 공간 분포 및 취약도 지형도</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:6px;'>1. 대한민국 인프라 양극화 및 취약도 지형도</h2>", unsafe_allow_html=True)
     
     max_schools = len(df_final)
     sample_size = st.slider("지도 시각화 학교 수 조절 (컨트롤러)", min_value=500, max_value=min(10000, max_schools), value=3000, step=500)
@@ -161,7 +161,7 @@ if df_final is not None:
             </div>
             """
             folium.CircleMarker(
-                location=[row['위度'], row['경도']],
+                location=[row['위도'], row['경도']], # 💡 [수정] 위度 오타 완전 박멸
                 radius=5.5,
                 color=color_map[row['유형_라벨']],
                 fill=True, fill_color=color_map[row['유형_라벨']], fill_opacity=0.75,
