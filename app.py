@@ -42,7 +42,7 @@ st.markdown("""
         padding: 26px;
         border-radius: 18px;
         border: 1px solid #F3F4F6;
-        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
+        box-shadow: 0 10px 30px -10 rgba(0, 0, 0, 0.04);
         margin-bottom: 24px;
     }
     
@@ -135,7 +135,7 @@ if df_final is not None:
         st.markdown(f'<div class="bento-card"><span style="color:#6B7280; font-size:14px; font-weight:500;">최고 인프라 집중 지역</span><br><span style="font-size:26px; font-weight:700; color:#111827;">{top_region}특별시</span></div>', unsafe_allow_html=True)
 
     # ---------------------------------------------------------
-    # SECTION 1: GEOSPATIAL MAP (검은 여백 파괴 및 완전 정중앙 정렬)
+    # SECTION 1: GEOSPATIAL MAP
     # ---------------------------------------------------------
     st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:6px;'>1. 대한민국 인프라 양극화 및 취약도 지형도</h2>", unsafe_allow_html=True)
     
@@ -208,15 +208,13 @@ if df_final is not None:
         st.pyplot(fig2)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # 💡 [신규 추가 지점] 연도별 미래 예측 시뮬레이션 인터랙티브 존 (좌우 배치 레이아웃)
+    # 미래 예측 시뮬레이션 인터랙티브 존
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
     st.markdown("<p style='font-size:18px; font-weight:700; color:#111827; margin-bottom:2px;'>- 학령인구 감소에 따른 미래 교육 여건 시뮬레이션 -</p>", unsafe_allow_html=True)
     st.markdown("<p style='color:#6B7280; font-size:14px; margin-bottom:20px;'>정부의 교원 임용 축소 정책 유무에 따른 교원 1인당 학생 수 예측 시나리오</p>", unsafe_allow_html=True)
     
-    # 연도 선택 인터랙티브 슬라이더 조작
     target_year = st.slider("예측 목표 연도를 설정하세요.", min_value=2025, max_value=2030, value=2030, step=1)
     
-    # 예측 연산 모델 수립 (2017-2024 기반)
     hist_years = np.array([2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024])
     hist_ratio = np.array([16.02, 15.38, 14.94, 14.65, 14.48, 14.21, 13.99, 13.79])
     
@@ -227,23 +225,19 @@ if df_final is not None:
     pred_bottleneck_base = [13.65, 13.55, 13.50, 13.48, 13.47, 13.46]
     pred_bottleneck = pred_bottleneck_base[:len(future_years)]
     
-    # 좌우 분할 레이아웃 전개 (Left: 예측 차트, Right: 데이터 통찰 해설)
     pred_col1, pred_col2 = st.columns([1.3, 1])
     
     with pred_col1:
         fig_pred, ax_pred = plt.subplots(figsize=(7.5, 4.6), facecolor='white')
         
-        # 실제 데이터선 플로팅
         ax_pred.plot(hist_years, hist_ratio, marker='o', color='#8B5CF6', linewidth=2.5, label='실제 추이 (2017-2024)')
         for x, y in zip(hist_years, hist_ratio):
             ax_pred.text(x, y + 0.12, f"{y:.1f}", ha='center', fontsize=8, color='#6D28D9', fontweight='bold')
             
-        # 선택된 미래 범위에 따른 시나리오 실시간 투영
         if len(future_years) > 0:
             ax_pred.plot(future_years, pred_trend, linestyle='--', marker='s', color='#9CA3AF', linewidth=1.8, label='단순 추세 연장 (교원 유지)')
             ax_pred.plot(future_years, pred_bottleneck, linestyle='--', marker='^', color='#EF4444', linewidth=2.2, label='현실적 예측 (교원 감축 반영)')
             
-            # 최종 지점 라벨링 강조
             ax_pred.text(future_years[-1], pred_trend[-1] - 0.22, f"{pred_trend[-1]:.2f}명", ha='center', fontsize=8.5, color='#4B5563', fontweight='bold')
             ax_pred.text(future_years[-1], pred_bottleneck[-1] + 0.12, f"{pred_bottleneck[-1]:.2f}명", ha='center', fontsize=8.5, color='#B91C1C', fontweight='bold')
 
@@ -251,7 +245,8 @@ if df_final is not None:
         ax_pred.spines['top'].set_visible(False)
         ax_pred.spines['right'].set_visible(False)
         ax_pred.spines['left'].set_color('#E5E7EB')
-        ax.spines['bottom'].set_color('#E5E7EB')
+        # 💡 [버그 수정] ax 대신 정확하게 ax_pred를 지정
+        ax_pred.spines['bottom'].set_color('#E5E7EB')
         ax_pred.set_ylim(11.0, 16.8)
         ax_pred.set_xticks(list(hist_years) + list(future_years))
         plt.xticks(rotation=45, fontsize=8.5)
@@ -275,9 +270,10 @@ if df_final is not None:
             </p>
         </div>
         """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
     # ---------------------------------------------------------
-    # [신규 추가] SECTION 2.5: 심층 격차 분석 스튜디오 (하이엔드 차트)
+    # SECTION 2.5: 심층 격차 분석 스튜디오 (하이엔드 차트)
     # ---------------------------------------------------------
     st.markdown("<h2 style='font-size:22px; font-weight:700; margin-top:30px; margin-bottom:14px;'>2.5 불평등도 및 다차원 프로파일링 심층 분석</h2>", unsafe_allow_html=True)
     c_adv1, c_adv2 = st.columns(2)
@@ -286,13 +282,11 @@ if df_final is not None:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
         st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>교육 인프라 분배의 로렌츠 곡선 (Lorenz Curve)</p>", unsafe_allow_html=True)
         
-        # 지니계수(Gini) 정밀 계산 함수
         infra_values = np.sort(df_final['최종_종합_인프라_점수'].values)
         n = len(infra_values)
         index = np.arange(1, n + 1)
         gini = ((np.sum((2 * index - n - 1) * infra_values)) / (n * np.sum(infra_values)))
         
-        # 로렌츠 곡선 플로팅
         cum_infra = np.cumsum(infra_values) / np.sum(infra_values)
         cum_population = np.arange(1, n + 1) / n
         
@@ -314,17 +308,18 @@ if df_final is not None:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
         st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>학교 유형별 다차원 인프라 병렬 프로파일러</p>", unsafe_allow_html=True)
         
-        # 병렬 좌표 플롯을 위한 데이터 스케일 정규화 (0~100 스케일 통일)
         df_parallel = df_final[['유형_라벨', '학생수계', '수업교사총수', '최종_종합_인프라_점수', '접근성_점수(100만점)', '교육인프라_점수(100만점)']].copy()
         df_parallel.columns = ['유형', '학생수', '교사수', '종합점수', '교통점수', '학원점수']
         
-        # 시각화를 위해 샘플링 (1만개 다그리면 선이 뭉쳐서 안보이므로 150개 추출)
         df_para_sample = df_parallel.sample(n=min(150, len(df_parallel)), random_state=42)
         
         fig_para, ax_para = plt.subplots(figsize=(7, 4.5), facecolor='white')
         
-        # Pandas 내장 parallel_coordinates 활용하여 고급 챠트 렌더링
-        pd.plotting.parallel_coordinates(df_para_sample, '유형', color=[color_map[c] for c in df_para_sample['유형']], alpha=0.4, linewidth=1.5, ax=ax_para)
+        # 💡 [핵심 에러 해결 부] 고유 클래스 순서에 맞춰 컬러 매핑 길이 일치시킴 (ValueError 전면 해결)
+        unique_classes = df_para_sample['유형'].unique()
+        color_values = [color_map[c] for c in unique_classes]
+        
+        pd.plotting.parallel_coordinates(df_para_sample, '유형', color=color_values, alpha=0.4, linewidth=1.5, ax=ax_para)
         
         ax_para.set_facecolor('#FAFAFA')
         ax_para.spines['top'].set_visible(False)
@@ -336,7 +331,6 @@ if df_final is not None:
         ax_para.legend(frameon=False, fontsize=8, loc='lower left')
         st.pyplot(fig_para)
         st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
     # ---------------------------------------------------------
     # SECTION 3: AI CONSULTANT
@@ -386,7 +380,7 @@ if df_final is not None:
                     st.markdown("-> **[과밀학급 해소]** 교육부 산하 '그린스마트 미래학교' 프로젝트 최우선권 배정, 친환경·고성능 모듈러 교실 시스템 즉각 구축")
                     st.markdown("-> **[정서 케어]** 과밀 밀집도에 의한 교원 피로 완화를 위해 공인 '학교폭력 전담 조사관' 및 Wee클래스 전문 인력 가산 영입")
                 elif 'B유형' in s_type:
-                    st.markdown("-> **[공간 밸류업]** 정부 국비 매칭 '학교복합시설' 사업 선발: 유휴 공실 스페이스를 주민 공공 도서관 및 거점형 늘봄 센터로 영구 개조")
+                    st.markdown("-> **[공간 200% 활용]** 정부 국비 매칭 '학교복합시설' 사업 선발: 유휴 공실 스페이스를 주민 공공 도서관 및 거점형 늘봄 센터로 영구 개조")
                     st.markdown("-> **[신규 유치]** 교육청 공모 '자율형 공립고 2.0' 연계, 인근 첨단 산업/디지털 기술 연계 특화 교육 트랙 개설을 통한 외부 학생 유입 유도")
                 elif 'C유형' in s_type:
                     st.markdown("-> **[고립 극복]** 교원 수급 불균형에 의한 선택과목 마비를 해소하기 위해 교육청 주관 '메타버스 기반 가상 공동 교육과정' 거점 하드웨어 전면 지원")
