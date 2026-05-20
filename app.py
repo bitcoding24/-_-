@@ -152,7 +152,7 @@ if df_final is not None:
                 location=[row['위도'], row['경도']],
                 radius=5.5,
                 color=color_map[row['유형_라벨']],
-                fill=True, fill_color=color_map[row['유형_라벨']], fill_opacity=0.75,
+                fill=True, fill_color=color_map[row['위형_라벨']], fill_opacity=0.75,
                 weight=1,
                 tooltip=folium.Tooltip(html_content)
             ).add_to(marker_cluster)
@@ -166,10 +166,10 @@ if df_final is not None:
     # ---------------------------------------------------------
     st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 머신러닝 분석 및 미래 여건 시뮬레이션 스튜디오</h2>", unsafe_allow_html=True)
     
-    # K-Means 산점도 카드 컴포넌트 (좌우 분할 1.3 : 1 황금 비율)
+    # 💡 [쉬운 설명 개편] K-Means 군집 분석 카드 (글자 크기 15.5px, 행간 1.75로 가독성 극대화)
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-    st.markdown("<p style='font-size:18px; font-weight:700; color:#111827; margin-bottom:2px;'>- K-Means 군집 분석 기반 학생-교원 공급 분포도 -</p>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#6B7280; font-size:14px; margin-bottom:20px;'>전국 1만여 개 학교의 총학생수 및 교사수 행렬 데이터를 활용한 인공지능 군집 분할 결과</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size:18px; font-weight:700; color:#111827; margin-bottom:2px;'>- 인공지능(AI) 군집 분석 결과 및 격차 해설 -</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#6B7280; font-size:14px; margin-bottom:20px;'>전국 1만여 개 학교의 학생 수와 교사 수 데이터를 AI 알고리즘으로 분석한 결과입니다.</p>", unsafe_allow_html=True)
     
     chart_col1, chart_col2 = st.columns([1.3, 1])
     
@@ -186,25 +186,24 @@ if df_final is not None:
         ax.legend(frameon=False, fontsize=9)
         st.pyplot(fig)
         
-    # 💡 [핵심 패치] 누락되었던 B유형 설명을 추가하고 가독성 리스케일링 적용
     with chart_col2:
         st.markdown(f"""
         <div style="padding-left:18px; border-left:4px solid #6366F1; height:100%;">
-            <p style="font-size:19px; font-weight:800; color:#111827; margin-bottom:14px; letter-spacing:-0.5px;">- 인공지능 군집 분할 특성 및 격차 통찰 -</p>
+            <p style="font-size:19px; font-weight:800; color:#111827; margin-bottom:14px; letter-spacing:-0.5px;">- AI가 분류한 대한민국 학교의 3가지 현실 성적표 -</p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; text-align:justify;">
-                전국 학교의 학생 수와 교사 총수 매트릭스를 기반으로 알고리즘을 구동한 결과, 대한민국 공교육 생태계는 행정구역 경계를 초월하여 실제 학교가 직면한 내부 자원 공급 수준에 따라 <b>'체급별 양극화 노선'</b>을 명확하게 도출합니다.
+                전국 학교의 학생 수와 교사 수를 인공지능으로 분석해보면, 행정구역(서울, 부산 등)의 경계와 무관하게 실제 학교가 처한 진짜 교육 여건에 따라 아래와 같이 <b>'3가지 체급'</b>으로 뚜렷하게 나뉩니다.
             </p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
-                <span style="font-weight:700; color:#EF4444;">- A유형 (과밀/과부하 집단)</span><br>
-                -> 스캐터 플롯 우상단 영역에 길게 분산된 대형 학교 군집입니다. 주로 대도시 및 신도시 인근 학구에 위치해 있으며, 과밀학급화에 따른 교원 업무 과부하가 심각하여 하드웨어적 교실 증축 및 행정 인력 가산 배치가 긴급히 요구되는 집단입니다.
+                <span style="font-weight:700; color:#EF4444;">- A유형 (과밀/과부하 학교)</span><br>
+                -> 학생 수가 너무 많아 교실이 터져 나가는 대형 학교들입니다. 주로 신도시나 대도시 중심지에 몰려 있습니다. 교사 한 명이 담당해야 할 학생이 너무 많아 교육의 질이 떨어질 우려가 크며, 교실 증축과 행정 보조인력 지원이 가장 시급한 곳입니다.
             </p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
-                <span style="font-weight:700; color:#3B82F6;">- B유형 (재정비 효율화 집단)</span><br>
-                -> 플롯 중앙 지대에 위치한 중형 규모의 군집입니다. 주로 지방 소도시 및 원도심 지대에 입지해 있으며, 학령인구는 감소 추세이나 과거 설치된 학교 인프라 규모가 그대로 유지되어 자원 효율성이 떨어지므로 '학교복합시설 고도화' 및 유휴 공간 재편 정책이 필요한 대상입니다.
+                <span style="font-weight:700; color:#3B82F6;">- B유형 (재정비 효율화 학교)</span><br>
+                -> 학생 수도 적당하고 교사 수도 유지되고 있는 평범한 중형 학교들입니다. 지방 소도시나 오래된 원도심에 많습니다. 다만 인구가 점점 줄어들고 있어, 앞으로 남는 교실이나 시설을 지역 주민 도서관이나 돌봄 센터로 리모델링하는 등 공간 재편이 필요한 곳입니다.
             </p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
-                <span style="font-weight:700; color:#10B981;">- C유형 (소멸위기 고립 집단)</span><br>
-                -> 플롯 좌하단 원점 근방에 밀집된 소규모 학교 군집입니다. 원거리 농어촌 및 인구 감소 직격탄을 맞은 지대에 분포되어 있으며, 공교육 규모의 경제를 완전히 상실하여 교과목 마비 및 폐교 리스크가 가장 높은 최우선 케어 집단입니다.
+                <span style="font-weight:700; color:#10B981;">- C유형 (소멸위기 고립 학교)</span><br>
+                -> 전교생이 너무 적어 문을 닫을 위기에 처한 미니 학교들입니다. 도서산간이나 시골 지역에 많습니다. 학생이 없다 보니 정상적인 교과목 수업 개설조차 어려워 아이들이 공교육의 혜택을 받지 못하고 있으며, 폐교를 막기 위한 상생 정책이 절실한 곳입니다.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -254,20 +253,21 @@ if df_final is not None:
         ax_pred.legend(frameon=False, loc='upper right', fontsize=8.5)
         st.pyplot(fig_pred)
         
+    # 💡 [쉬운 설명 개편] 미래 예측 시뮬레이션 카드 (글자 크기 15.5px, 행간 1.75로 가독성 극대화)
     with pred_col2:
         st.markdown(f"""
         <div style="padding-left:18px; border-left:4px solid #8B5CF6; height:100%;">
-            <p style="font-size:19px; font-weight:800; color:#111827; margin-bottom:14px; letter-spacing:-0.5px;">- 시뮬레이션 기반 데이터 인사이트 리포트 -</p>
+            <p style="font-size:19px; font-weight:800; color:#111827; margin-bottom:14px; letter-spacing:-0.5px;">- 미래 교육 환경 예측: 낙관론과 냉정한 현실 -</p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; text-align:justify;">
-                대한민국의 합계출산율은 2022년 0.78명으로 OECD 역사상 최저 수준을 기록했습니다. 인구 급감에 따라 학생 수가 줄어들면 공교육 여건이 자동으로 크게 개선될 것이라는 일반적인 낙관론은 국가 전반 수치 뒤에 은닉된 <b>'평균의 함정'</b>을 내포하고 있습니다. 머신러닝 예측 모델링 분석 결과는 정책적 변수에 따라 완전히 정반대의 미래를 경고합니다.
+                대한민국의 합계출산율은 2022년 0.78명으로 역사상 최저 수준을 기록했습니다. 흔히 사람들은 "아이들이 줄어드니까 교사 한 명당 돌보는 학생 수도 줄어들고, 교육 여건이 저절로 좋아지겠지?"라고 생각합니다. 하지만 이는 전체 평균의 숫자에 속는 <b>'평균의 함정'</b>입니다. 인공지능 예측 결과는 정부 정책에 따라 미래가 완전히 달라질 수 있음을 경고합니다.
             </p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
                 <span style="font-weight:700; color:#4B5563;">- 단순 추세 연장 가설 (회색 점선)</span><br>
-                -> 과거의 충원 흐름을 선형회귀 모델로 단순 연장할 시, {target_year}년 교원 1인당 학생 수는 <b>{pred_trend[-1]:.2f}명</b>까지 낮아져 정량적 교육 환경이 무조건 상향되는 왜곡된 평가를 도출합니다. 이는 통계청의 다소 낙관적인 인구 반등 시나리오에 기반한 수치적 착시입니다.
+                -> 과거 데이터 흐름 그대로 "학생만 줄어들고 교사 수는 지금처럼 유지된다"고 기계적으로 계산한 선입니다. {target_year}년이 되면 교원 1인당 학생 수가 <b>{pred_trend[-1]:.2f}명</b>까지 떨어져 교육 여건이 엄청나게 좋아지는 것처럼 보입니다. 하지만 이는 현실성이 낮은 통계적 착시일 뿐입니다.
             </p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
                 <span style="font-weight:700; color:#B91C1C;">- 현실적 정책 리스크 반영선 (빨간 점선)</span><br>
-                -> 실제 정부가 학령인구 감소를 이유로 교원 정원을 동결하거나 신규 임용 규모를 축소(임용 절벽)할 경우, 학생 수 급감 효과가 전량 상쇄되어 {target_year}년 수치는 <b>{pred_bottleneck[-1]:.2f}명</b> 선에서 정체(Bottleneck)되는 심각한 교육 여건 정체 현상이 발생합니다. 평균의 환상에 속아 교사 공급을 일괄 감축하면 실질적인 교육 환경 개선은 완전히 마비됩니다.
+                -> "학생이 줄어드니 나라에서 교사 임용도 같이 줄여버린다(임용 절벽)"는 실제 정부의 정원 감축 정책 리스크를 반영한 선입니다. 학생 감소 속도에 맞춰 교사 공급마저 끊겨버리면, {target_year}년 수치는 더 이상 개선되지 못하고 <b>{pred_bottleneck[-1]:.2f}명</b> 선에서 딱 멈추는 병목 현상(Bottleneck)이 발생합니다. 평균의 환상에 속아 교사 공급을 감축하면 실질적인 교육 환경 개선은 완전히 마비됩니다.
             </p>
         </div>
         """, unsafe_allow_html=True)
