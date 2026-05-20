@@ -12,10 +12,10 @@ import urllib.request
 # 1. 페이지 레이아웃 및 테마 최적화 (실리콘밸리 럭셔리 미니멀리즘)
 st.set_page_config(page_title="Project EduBridge AI", layout="wide", initial_sidebar_state="collapsed")
 
-# CSS 주입: 완벽한 화이트 캔버스 + 네온 퍼플 그라데이션 테마
+# CSS 주입: 완벽한 화이트 캔버스 + 네온 퍼플 그라데이션 테마 + 지도 검은 테두리 파괴
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
     
     /* 배경색 흰색 고정 및 글로벌 폰트 세팅 */
     html, body, [data-testid="stAppViewContainer"] {
@@ -29,6 +29,14 @@ st.markdown("""
         backdrop-filter: blur(8px) !important;
     }
     
+    /* 🔥 [핵심 패치] 지도 주변에 생기는 모든 검은색/회색 여백 제거 */
+    iframe {
+        background-color: transparent !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
     /* 벤토 박스 프리미엄 카드 디자인 */
     .bento-card {
         background: #FFFFFF;
@@ -39,7 +47,7 @@ st.markdown("""
         margin-bottom: 24px;
     }
     
-    /* [수정] 실리콘밸리 스타일 대형 프로젝트 타이틀 */
+    /* 실리콘밸리 스타일 대형 프로젝트 타이틀 */
     .project-title {
         font-size: 46px;
         font-weight: 800;
@@ -51,7 +59,7 @@ st.markdown("""
         line-height: 1.2;
     }
     
-    /* [수정] 세련된 팀 이름 서브 타이틀 */
+    /* 세련된 팀 이름 서브 타이틀 */
     .team-sub {
         font-size: 16px;
         font-weight: 600;
@@ -115,11 +123,9 @@ def load_final_data():
 df_final = load_final_data()
 
 if df_final is not None:
-    # ---------------------------------------------------------
-    # BRANDING HERO SECTION (프로젝트 및 팀 이름 리포지셔닝)
-    # ---------------------------------------------------------
-    st.markdown('<p class="project-title">EduBridge에듀브릿지</p>', unsafe_allow_html=True)
-    st.markdown('<p class="team-sub">오민도</p>', unsafe_allow_html=True)
+    # BRANDING HERO SECTION
+    st.markdown('<p class="project-title">Project EduBridge AI</p>', unsafe_allow_html=True)
+    st.markdown('<p class="team-sub">데이터기반 정책혁신 연구단 (Data-Driven Policy Innovation Lab)</p>', unsafe_allow_html=True)
     
     # 상단 지표 카드 레이아웃
     m1, m2, m3 = st.columns(3)
@@ -130,23 +136,26 @@ if df_final is not None:
         st.markdown(f'<div class="bento-card"><span style="color:#6B7280; font-size:14px; font-weight:500;">전국 평균 교사 1인당 학생 수</span><br><span style="font-size:26px; font-weight:700; color:#8B5CF6;">{avg_ratio} 명</span></div>', unsafe_allow_html=True)
     with m3:
         top_region = df_final.groupby('지역')['최종_종합_인프라_점수'].mean().idxmax()
-        st.markdown(f'<div class="bento-card"><span style="color:#6B7280; font-size:14px; font-weight:500;">최고 인프라 밀집 지역</span><br><span style="font-size:26px; font-weight:700; color:#111827;">{top_region}특별시</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="bento-card"><span style="color:#6B7280; font-size:14px; font-weight:500;">최고 인프라 집중 지역</span><br><span style="font-size:26px; font-weight:700; color:#111827;">{top_region}특별시</span></div>', unsafe_allow_html=True)
 
     # ---------------------------------------------------------
-    # SECTION 1: GEOSPATIAL MAP (지도 가운데 정렬 및 검은 여백 제거)
+    # SECTION 1: GEOSPATIAL MAP (검은 여백 파괴 및 완전 정중앙 정렬)
     # ---------------------------------------------------------
     st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:6px;'>1. 대한민국 인프라 양극화 및 취약도 지형도</h2>", unsafe_allow_html=True)
     
     max_schools = len(df_final)
     sample_size = st.slider("지도 시각화 학교 수 조절 (컨트롤러)", min_value=500, max_value=min(10000, max_schools), value=3000, step=500)
     
-    # 💡 [핵심 패치] 검은 화면 테두리를 없애고 스트림릿 컬럼 분할을 이용해 지도를 완벽하게 화면 정중앙에 정렬
+    # 좌우 여백을 균등하게 주어 지도를 완벽한 레이아웃 가운데로 정렬
     _, map_center_col, _ = st.columns([1, 10, 1])
     
     with map_center_col:
         m_real = folium.Map(location=[36.2, 127.8], zoom_start=7, tiles='CartoDB positron')
-        marker_cluster = MarkerCluster(disableClusteringAtZoom=13).add_to(m_real)
         
+        # 🔥 [핵심 패치] 지도 내부의 기본 회색/검은색 캔버스 배경을 강제로 흰색으로 세팅
+        m_real.get_root().header.add_child(folium.Element("<style>.leaflet-container { background: #FFFFFF !important; }</style>"))
+        
+        marker_cluster = MarkerCluster(disableClusteringAtZoom=13).add_to(m_real)
         color_map = {'A유형 (과밀/과부하)': '#EF4444', 'B유형 (재정비효율)': '#3B82F6', 'C유형 (소멸위기)': '#10B981'}
         
         for idx, row in df_final.sample(n=sample_size, random_state=42).iterrows():
@@ -167,20 +176,20 @@ if df_final is not None:
                 tooltip=folium.Tooltip(html_content)
             ).add_to(marker_cluster)
             
-        # 외곽 HTML 래퍼를 걷어내 검은 화면 오류를 삭제하고 깔끔하게 렌더링
-        st_folium(m_real, width=1050, height=550, returned_objects=[])
+        # 🔥 [핵심 패치] width를 숫자로 고정하지 않고 반응형 100% 꽉 차게 변경하여 양옆 블랙바 박멸
+        st_folium(m_real, height=560, use_container_width=True, returned_objects=[])
 
     st.markdown("<div style='margin-bottom:40px;'></div>", unsafe_allow_html=True)
 
     # ---------------------------------------------------------
     # SECTION 2: CHARTS
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 주요 데이터 시각화</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 데이터 머신러닝 스튜디오</h2>", unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     
     with c1:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>교사 수-학생수 비교 산점도</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>K-Means 군집 분석 스캐터 플롯</p>", unsafe_allow_html=True)
         fig, ax = plt.subplots(figsize=(7, 4.5), facecolor='white')
         sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=color_map, alpha=0.5, s=35, ax=ax, edgecolor='none')
         ax.set_facecolor('#FAFAFA')
@@ -194,7 +203,7 @@ if df_final is not None:
         
     with c2:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>지자체별 인프라 점수 차트</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>지자체별 인프라 양극화 편차 차트</p>", unsafe_allow_html=True)
         fig2, ax2 = plt.subplots(figsize=(7, 4.5), facecolor='white')
         region_order = df_final.groupby('지역')['최종_종합_인프라_점수'].mean().sort_values(ascending=False).index
         sns.barplot(data=df_final, x='지역', y='최종_종합_인프라_점수', order=region_order, palette='Purples_r', errorbar=None, ax=ax2)
@@ -210,7 +219,7 @@ if df_final is not None:
     # ---------------------------------------------------------
     # SECTION 3: AI CONSULTANT
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-top:20px; margin-bottom:14px;'>3. 학교에 맞는 처방전입니당</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-top:20px; margin-bottom:14px;'>3. 개별 학교 맞춤형 AI 정책 수립 처방전</h2>", unsafe_allow_html=True)
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
     query = st.text_input("조회하려는 맞춤형 학교 이름을 명확히 입력하세요.", placeholder="예: 노형중학교, 개원중학교, 거창중학교")
     
