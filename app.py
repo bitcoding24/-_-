@@ -275,6 +275,67 @@ if df_final is not None:
             </p>
         </div>
         """, unsafe_allow_html=True)
+
+    # ---------------------------------------------------------
+    # [신규 추가] SECTION 2.5: 심층 격차 분석 스튜디오 (하이엔드 차트)
+    # ---------------------------------------------------------
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-top:30px; margin-bottom:14px;'>2.5 불평등도 및 다차원 프로파일링 심층 분석</h2>", unsafe_allow_html=True)
+    c_adv1, c_adv2 = st.columns(2)
+    
+    with c_adv1:
+        st.markdown('<div class="bento-card">', unsafe_allow_html=True)
+        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>교육 인프라 분배의 로렌츠 곡선 (Lorenz Curve)</p>", unsafe_allow_html=True)
+        
+        # 지니계수(Gini) 정밀 계산 함수
+        infra_values = np.sort(df_final['최종_종합_인프라_점수'].values)
+        n = len(infra_values)
+        index = np.arange(1, n + 1)
+        gini = ((np.sum((2 * index - n - 1) * infra_values)) / (n * np.sum(infra_values)))
+        
+        # 로렌츠 곡선 플로팅
+        cum_infra = np.cumsum(infra_values) / np.sum(infra_values)
+        cum_population = np.arange(1, n + 1) / n
+        
+        fig_lorenz, ax_lorenz = plt.subplots(figsize=(7, 4.5), facecolor='white')
+        ax_lorenz.plot([0, 1], [0, 1], color='#9CA3AF', linestyle='--', linewidth=1.5, label='완전 평등선 (Gini = 0)')
+        ax_lorenz.plot(cum_population, cum_infra, color='#8B5CF6', linewidth=2.5, label=f'인프라 분배 곡선 (Gini = {gini:.3f})')
+        ax_lorenz.fill_between(cum_population, cum_population, cum_infra, color='#8B5CF6', alpha=0.1)
+        
+        ax_lorenz.set_facecolor('#FAFAFA')
+        ax_lorenz.spines['top'].set_visible(False)
+        ax_lorenz.spines['right'].set_visible(False)
+        ax_lorenz.set_xlabel('학교 누적 비율', fontsize=10)
+        ax_lorenz.set_ylabel('인프라 점수 누적 비율', fontsize=10)
+        ax_lorenz.legend(frameon=False, fontsize=9, loc='upper left')
+        st.pyplot(fig_lorenz)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+    with c_adv2:
+        st.markdown('<div class="bento-card">', unsafe_allow_html=True)
+        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>학교 유형별 다차원 인프라 병렬 프로파일러</p>", unsafe_allow_html=True)
+        
+        # 병렬 좌표 플롯을 위한 데이터 스케일 정규화 (0~100 스케일 통일)
+        df_parallel = df_final[['유형_라벨', '학생수계', '수업교사총수', '최종_종합_인프라_점수', '접근성_점수(100만점)', '교육인프라_점수(100만점)']].copy()
+        df_parallel.columns = ['유형', '학생수', '교사수', '종합점수', '교통점수', '학원점수']
+        
+        # 시각화를 위해 샘플링 (1만개 다그리면 선이 뭉쳐서 안보이므로 150개 추출)
+        df_para_sample = df_parallel.sample(n=min(150, len(df_parallel)), random_state=42)
+        
+        fig_para, ax_para = plt.subplots(figsize=(7, 4.5), facecolor='white')
+        
+        # Pandas 내장 parallel_coordinates 활용하여 고급 챠트 렌더링
+        pd.plotting.parallel_coordinates(df_para_sample, '유형', color=[color_map[c] for c in df_para_sample['유형']], alpha=0.4, linewidth=1.5, ax=ax_para)
+        
+        ax_para.set_facecolor('#FAFAFA')
+        ax_para.spines['top'].set_visible(False)
+        ax_para.spines['right'].set_visible(False)
+        ax_para.spines['left'].set_color('#E5E7EB')
+        ax_para.spines['bottom'].set_color('#E5E7EB')
+        plt.xticks(fontsize=9)
+        plt.yticks(fontsize=9)
+        ax_para.legend(frameon=False, fontsize=8, loc='lower left')
+        st.pyplot(fig_para)
+        st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     # ---------------------------------------------------------
