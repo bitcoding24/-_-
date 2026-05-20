@@ -124,8 +124,8 @@ df_final = load_final_data()
 
 if df_final is not None:
     # BRANDING HERO SECTION
-    st.markdown('<p class="project-title">Project EduBridge AI</p>', unsafe_allow_html=True)
-    st.markdown('<p class="team-sub">데이터기반 정책혁신 연구단 (Data-Driven Policy Innovation Lab)</p>', unsafe_allow_html=True)
+    st.markdown('<p class="project-title">EduBridge에듀브릿지</p>', unsafe_allow_html=True)
+    st.markdown('<p class="team-sub">오민도)</p>', unsafe_allow_html=True)
     
     # 상단 지표 카드 레이아웃
     m1, m2, m3 = st.columns(3)
@@ -141,7 +141,7 @@ if df_final is not None:
     # ---------------------------------------------------------
     # SECTION 1: GEOSPATIAL MAP (검은 여백 파괴 및 완전 정중앙 정렬)
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:6px;'>1. 대한민국 인프라 양극화 및 취약도 지형도</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:6px;'>1. 대한민국 학교의 유형을 확인해보세용</h2>", unsafe_allow_html=True)
     
     max_schools = len(df_final)
     sample_size = st.slider("지도 시각화 학교 수 조절 (컨트롤러)", min_value=500, max_value=min(10000, max_schools), value=3000, step=500)
@@ -184,12 +184,12 @@ if df_final is not None:
     # ---------------------------------------------------------
     # SECTION 2: CHARTS
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 데이터 머신러닝 스튜디오</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 데이터 분석 보고가세요 </h2>", unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     
     with c1:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>K-Means 군집 분석 스캐터 플롯</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>K-Means 학생수-교원수 기반 산점도 </p>", unsafe_allow_html=True)
         fig, ax = plt.subplots(figsize=(7, 4.5), facecolor='white')
         sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=color_map, alpha=0.5, s=35, ax=ax, edgecolor='none')
         ax.set_facecolor('#FAFAFA')
@@ -203,7 +203,7 @@ if df_final is not None:
         
     with c2:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>지자체별 인프라 양극화 편차 차트</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>지자체별 인프라 점수</p>", unsafe_allow_html=True)
         fig2, ax2 = plt.subplots(figsize=(7, 4.5), facecolor='white')
         region_order = df_final.groupby('지역')['최종_종합_인프라_점수'].mean().sort_values(ascending=False).index
         sns.barplot(data=df_final, x='지역', y='최종_종합_인프라_점수', order=region_order, palette='Purples_r', errorbar=None, ax=ax2)
@@ -219,7 +219,7 @@ if df_final is not None:
     # ---------------------------------------------------------
     # SECTION 3: AI CONSULTANT
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-top:20px; margin-bottom:14px;'>3. 개별 학교 맞춤형 AI 정책 수립 처방전</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-top:20px; margin-bottom:14px;'>3. 개별 학교 맞춤형 제안압니당</h2>", unsafe_allow_html=True)
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
     query = st.text_input("조회하려는 맞춤형 학교 이름을 명확히 입력하세요.", placeholder="예: 노형중학교, 개원중학교, 거창중학교")
     
