@@ -120,8 +120,8 @@ df_final = load_final_data()
 
 if df_final is not None:
     # BRANDING HERO SECTION
-    st.markdown('<p class="project-title">Project EduBridge AI</p>', unsafe_allow_html=True)
-    st.markdown('<p class="team-sub">데이터기반 정책혁신 연구단 (Data-Driven Policy Innovation Lab)</p>', unsafe_allow_html=True)
+    st.markdown('<p class="project-title">EduBridge에듀브릿지</p>', unsafe_allow_html=True)
+    st.markdown('<p class="team-sub">오민도)</p>', unsafe_allow_html=True)
     
     # 상단 지표 카드 레이아웃
     m1, m2, m3 = st.columns(3)
@@ -137,7 +137,7 @@ if df_final is not None:
     # ---------------------------------------------------------
     # SECTION 1: GEOSPATIAL MAP
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:6px;'>1. 대한민국 인프라 양극화 및 취약도 지형도</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:6px;'>1. 한국의 학교별 유형 분류입니당 </h2>", unsafe_allow_html=True)
     
     max_schools = len(df_final)
     sample_size = st.slider("지도 시각화 학교 수 조절 (컨트롤러)", min_value=500, max_value=min(10000, max_schools), value=3000, step=500)
@@ -176,12 +176,12 @@ if df_final is not None:
     # ---------------------------------------------------------
     # SECTION 2: CHARTS
     # ---------------------------------------------------------
-    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 데이터 머신러닝 스튜디오</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 데이터 시각화 보고가세요</h2>", unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     
     with c1:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>K-Means 군집 분석 스캐터 플롯</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>K-Means를 활용해 분석한 교원-학생 수에 따른 산점도</p>", unsafe_allow_html=True)
         fig, ax = plt.subplots(figsize=(7, 4.5), facecolor='white')
         sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=color_map, alpha=0.5, s=35, ax=ax, edgecolor='none')
         ax.set_facecolor('#FAFAFA')
@@ -195,7 +195,7 @@ if df_final is not None:
         
     with c2:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>지자체별 인프라 양극화 편차 차트</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size:15px; font-weight:600; color:#374151; margin-bottom:15px;'>지자체별 인프라 점수 차트</p>", unsafe_allow_html=True)
         fig2, ax2 = plt.subplots(figsize=(7, 4.5), facecolor='white')
         region_order = df_final.groupby('지역')['최종_종합_인프라_점수'].mean().sort_values(ascending=False).index
         sns.barplot(data=df_final, x='지역', y='최종_종합_인프라_점수', order=region_order, palette='Purples_r', errorbar=None, ax=ax2)
@@ -210,8 +210,8 @@ if df_final is not None:
 
     # 연도별 미래 예측 시뮬레이션 인터랙티브 존
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-    st.markdown("<p style='font-size:18px; font-weight:700; color:#111827; margin-bottom:2px;'>- 학령인구 감소에 따른 미래 교육 여건 시뮬레이션 -</p>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#6B7280; font-size:14px; margin-bottom:20px;'>정부의 교원 임용 축소 정책 유무에 따른 교원 1인당 학생 수 예측 시나리오</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size:18px; font-weight:700; color:#111827; margin-bottom:2px;'>- 학령인구 감소에 따른 미래 교육 여건 예측 -</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#6B7280; font-size:14px; margin-bottom:20px;'>정부의 교원 임용 축소 정책 유무에 따른 교원 1인당 학생 수 예측 </p>", unsafe_allow_html=True)
     
     target_year = st.slider("예측 목표 연도를 설정하세요.", min_value=2025, max_value=2030, value=2030, step=1)
     
@@ -236,7 +236,7 @@ if df_final is not None:
             
         if len(future_years) > 0:
             ax_pred.plot(future_years, pred_trend, linestyle='--', marker='s', color='#9CA3AF', linewidth=1.8, label='단순 추세 연장 (교원 유지)')
-            ax_pred.plot(future_years, pred_bottleneck, linestyle='--', marker='^', color='#EF4444', linewidth=2.2, label='현실적 예측 (교원 감축 반영)')
+            ax_pred.plot(future_years, pred_bottleneck, linestyle='--', marker='^', color='#EF4444', linewidth=2.2, label='현실적인 예측 (교원 감축 반영)')
             
             ax_pred.text(future_years[-1], pred_trend[-1] - 0.22, f"{pred_trend[-1]:.2f}명", ha='center', fontsize=8.5, color='#4B5563', fontweight='bold')
             ax_pred.text(future_years[-1], pred_bottleneck[-1] + 0.12, f"{pred_bottleneck[-1]:.2f}명", ha='center', fontsize=8.5, color='#B91C1C', fontweight='bold')
