@@ -152,7 +152,7 @@ if df_final is not None:
                 location=[row['위도'], row['경도']],
                 radius=5.5,
                 color=color_map[row['유형_라벨']],
-                fill=True, fill_color=color_map[row['위형_라벨']], fill_opacity=0.75,
+                fill=True, fill_color=color_map[row['유형_라벨']], fill_opacity=0.75, # 💡 [수정 완료] 위형_라벨 오타 완벽 복구!
                 weight=1,
                 tooltip=folium.Tooltip(html_content)
             ).add_to(marker_cluster)
@@ -166,7 +166,7 @@ if df_final is not None:
     # ---------------------------------------------------------
     st.markdown("<h2 style='font-size:22px; font-weight:700; margin-bottom:14px;'>2. 머신러닝 분석 및 미래 여건 시뮬레이션 스튜디오</h2>", unsafe_allow_html=True)
     
-    # 💡 [쉬운 설명 개편] K-Means 군집 분석 카드 (글자 크기 15.5px, 행간 1.75로 가독성 극대화)
+    # K-Means 산점도 카드 컴포넌트 (좌우 분할 1.3 : 1 황금 비율)
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
     st.markdown("<p style='font-size:18px; font-weight:700; color:#111827; margin-bottom:2px;'>- 인공지능(AI) 군집 분석 결과 및 격차 해설 -</p>", unsafe_allow_html=True)
     st.markdown("<p style='color:#6B7280; font-size:14px; margin-bottom:20px;'>전국 1만여 개 학교의 학생 수와 교사 수 데이터를 AI 알고리즘으로 분석한 결과입니다.</p>", unsafe_allow_html=True)
@@ -253,7 +253,6 @@ if df_final is not None:
         ax_pred.legend(frameon=False, loc='upper right', fontsize=8.5)
         st.pyplot(fig_pred)
         
-    # 💡 [쉬운 설명 개편] 미래 예측 시뮬레이션 카드 (글자 크기 15.5px, 행간 1.75로 가독성 극대화)
     with pred_col2:
         st.markdown(f"""
         <div style="padding-left:18px; border-left:4px solid #8B5CF6; height:100%;">
@@ -267,7 +266,7 @@ if df_final is not None:
             </p>
             <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
                 <span style="font-weight:700; color:#B91C1C;">- 현실적 정책 리스크 반영선 (빨간 점선)</span><br>
-                -> "학생이 줄어드니 나라에서 교사 임용도 같이 줄여버린다(임용 절벽)"는 실제 정부의 정원 감축 정책 리스크를 반영한 선입니다. 학생 감소 속도에 맞춰 교사 공급마저 끊겨버리면, {target_year}년 수치는 더 이상 개선되지 못하고 <b>{pred_bottleneck[-1]:.2f}명</b> 선에서 딱 멈추는 병목 현상(Bottleneck)이 발생합니다. 평균의 환상에 속아 교사 공급을 감축하면 실질적인 교육 환경 개선은 완전히 마비됩니다.
+                -> "학생이 줄어드니 나라에서 교사 임용도 같이 줄여버린다(임용 절벽)"는 실제 정부의 정원 감축 정책 리스크를 반영한 선입니다. 학생 감소 속도에 맞춰 교사 공급마저 끊겨버리면, {target_year}년 수치는 더 이상 개선되지 못하고 <b>{pred_bottleneck[-1]:.2f}명</b> 선에서 딱 멈추는 병목 현상(Bottleneck)이 발생합니다. 평균의 환상에 속아 교사 공급을 일괄 감축하면 실질적인 교육 환경 개선은 완전히 마비됩니다.
             </p>
         </div>
         """, unsafe_allow_html=True)
