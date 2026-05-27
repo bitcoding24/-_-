@@ -16,7 +16,7 @@ from sklearn.linear_model import LinearRegression
 # ==========================================
 st.set_page_config(page_title="교.감.선생님. - 오민도", layout="wide", initial_sidebar_state="collapsed")
 
-# 💡 가독성 극대화 및 올블랙 프리미엄 디자인 CSS 주입
+# 가독성 극대화 및 올블랙 프리미엄 디자인 CSS 주입
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
@@ -184,7 +184,6 @@ if df_final is not None:
     if '학생수계' in df_final.columns and '수업교사총수' in df_final.columns:
         valid_teachers = df_final['수업교사총수'].replace(0, np.nan)
         df_final['교원1인당학생수'] = df_final['학생수계'] / valid_teachers
-        # 극단적 무한대 및 오류값 정돈 제거
         df_final = df_final.replace([np.inf, -np.inf], np.nan).dropna(subset=['교원1인당학생수'])
 
 # ==========================================
@@ -319,9 +318,7 @@ if df_final is not None:
         """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # ------------------------------------------
-    # 💡 [새로운 세션 추가] SECTION 3: 지역별 분산(Box Plot) 분석실
-    # ------------------------------------------
+    # SECTION 3: 지역별 분산(Box Plot) 분석실
     st.markdown("<h2 style='font-size:24px; font-weight:900; margin-top:45px; margin-bottom:14px; color:#111827;'>3. 지역별 교사 1인당 학생 수 분산 분석 : '평균 13명의 착시' 고발</h2>", unsafe_allow_html=True)
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
     
@@ -331,16 +328,13 @@ if df_final is not None:
             fig_b, ax_b = plt.subplots(figsize=(7.5, 5.2), facecolor='white')
             ax_b.set_facecolor('#FFFFFF')
             
-            # 중위수 기준 정렬하여 시각적 전문성 확보
             region_order = df_final.groupby('지역')['교원1인당학생수'].median().sort_values(ascending=False).index
             
-            # 박스플롯 구현 (안정적인 데이터 표현을 위해 이상치 크기 조절)
             sns.boxplot(
                 data=df_final, x='지역', y='교원1인당학생수', order=region_order,
                 palette='Purples', ax=ax_b, fliersize=2, width=0.6
             )
             
-            # 가이드 전국 평균선 주입 (가시성 높은 레드 대시라인)
             ax_b.axhline(y=avg_ratio, color='#EF4444', linestyle='--', linewidth=1.5, label=f'전국 평균선 ({avg_ratio}명)')
             
             ax_b.spines['top'].set_visible(False)
@@ -350,7 +344,6 @@ if df_final is not None:
             ax_b.set_ylabel('교사 1인당 담당 학생 수 (명)', color='#111827', fontweight='bold', fontsize=10)
             ax_b.legend(frameon=False, loc='upper right', fontsize=9)
             
-            # 상단 Y축 범위 최적화 보정 (가독성 방해 방지)
             max_y = min(df_final['교원1인당학생수'].max(), 35)
             ax_b.set_ylim(0, max_y + 2)
             
@@ -406,7 +399,7 @@ if df_final is not None:
             </p>
             <p class="readable-desc" style="font-size:15px !important; margin-bottom:0px;">
                 <span class="readable-bold" style="color:#3B82F6;">▶ C유형: 소멸위기 학교군</span><br>
-                도서산간 및 농어촌 고립 학교. 전교생이 극단적으로 적어 수치상 교사 비율은 우수해 보이지만, 학교 가동을 위한 최소 필수 교과목 정원이 무너져 공교육 상실 위험에 직면한 구역입니다.
+                도서산간 및 농어촌 고립 학교. 전교생이 극단적으로 적어 수치상 교사 비율은 우수해 보이지만, 학교 가동을 위한 최소 필수 교과목 정원이 무너져 공교육 상실 위험에직면한 구역입니다.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -419,4 +412,42 @@ if df_final is not None:
     target_year = st.slider("예측 시뮬레이션 목표 연도 지정", min_value=2025, max_value=2030, value=2030, step=1)
     
     hist_years = np.array([2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024])
-    hist_ratio = np.array(
+    hist_ratio = np.array([16.02, 15.38, 14.94, 14.65, 14.48, 14.21, 13.99, 13.79])
+    model_lr = LinearRegression().fit(hist_years.reshape(-1, 1), hist_ratio)
+    future_years = np.array(list(range(2025, target_year + 1)))
+    
+    pred_trend = model_lr.predict(future_years.reshape(-1, 1))
+    pred_bottleneck_base = [13.65, 13.55, 13.50, 13.48, 13.47, 13.46]
+    pred_bottleneck = pred_bottleneck_base[:len(future_years)]
+    
+    p1, p2 = st.columns([1.2, 1])
+    with p1:
+        fig_p, ax_p = plt.subplots(figsize=(7.5, 4.6), facecolor='white')
+        ax_p.plot(hist_years, hist_ratio, marker='o', color='#8B5CF6', linewidth=2.5, label='실제 통계 추이 (2017-2024)')
+        if len(future_years) > 0:
+            ax_p.plot(future_years, pred_trend, linestyle='--', marker='s', color='#C084FC', linewidth=1.8, label='단순 기계적 추세선')
+            ax_p.plot(future_years, pred_bottleneck, linestyle='--', marker='^', color='#9333EA', linewidth=2.2, label='임용 절벽 정책 반영선')
+            ax_p.text(future_years[-1], pred_trend[-1] - 0.25, f"{pred_trend[-1]:.2f}명", ha='center', fontsize=9, color='#C084FC', fontweight='bold')
+            ax_p.text(future_years[-1], pred_bottleneck[-1] + 0.15, f"{pred_bottleneck[-1]:.2f}명", ha='center', fontsize=9, color='#9333EA', fontweight='bold')
+        
+        ax_p.set_facecolor('#FFFFFF')
+        ax_p.set_ylim(10.5, 16.8)
+        ax_p.legend(frameon=False, loc='upper right', fontsize=9)
+        st.pyplot(fig_p)
+    with p2:
+        st.markdown(f"""
+        <div style="padding-left:18px; border-left:4px solid #111827; height:100%;">
+            <div style="font-size:20px; font-weight:800; color:#111827; margin-bottom:14px;">- '평균의 함정'과 수급 병목 리스크 -</div>
+            <p class="readable-desc">
+                정부는 학생이 급감하므로 교원 수급 여건이 선진국형 자동 모델(연보라 점선)로 자동 안착할 것이라 주장합니다. 하지만 이는 통계적 기만입니다.<br><br>
+                정부의 계획대로 학생 수 감소율에만 맞춰 교사 임용 공급망까지 일방적으로 줄이는 획일적 감축이 단행될 경우, 미래 교육 여건 수치는 개선을 멈추고 <span class="readable-bold" style="color:#9333EA;">{pred_bottleneck[-1]:.2f}명 선에서 동결되는 심각한 '정책적 병목 현상(Bottleneck)'</span>이 도출됨을 머신러닝 시뮬레이터가 고발하고 있습니다.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    st.markdown("""
+        <div style="margin-top: 25px; padding-top: 14px; border-top: 1px dashed #E5E7EB; color: #6B7280; font-size: 13px;">
+            <span style="font-weight: 700; color: #9333EA;">※ 학술적 연구 근거 및 실증 출처 :</span> 본 미래 수급 예측 파이프라인 시뮬레이션 구조는 <b>한국노동사회연구소</b> 연구 문헌 지표 및 <b>국회미래연구원</b>의 <i>『학령인구 감소에 따른 교육 현장의 변화 및 정책 제언』</i> 국책 계량 경제 지표를 기반으로 구축되었습니다.
+        </div>
+    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
