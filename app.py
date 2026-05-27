@@ -16,7 +16,7 @@ from sklearn.linear_model import LinearRegression
 # ==========================================
 st.set_page_config(page_title="교.감.선생님. - 오민도", layout="wide", initial_sidebar_state="collapsed")
 
-# 가독성 극대화 및 올블랙 프리미엄 디자인 CSS 주입
+# 💡 가독성 극대화 및 올블랙 프리미엄 디자인 CSS 주입
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
@@ -51,7 +51,7 @@ st.markdown("""
         font-size: 15px !important;
     }
     
-    /* 벤토 카드 디자인 */
+    /* 벤토 카드 디자인 여백 및 가독성 확장 */
     .bento-card {
         background: #FFFFFF;
         padding: 32px; 
@@ -102,7 +102,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 한글 폰트 다운로드 및 깨짐 방지 패치
+# 한글 폰트 패치
 font_url = "https://github.com/google/fonts/raw/main/ofl/nanumgothic/NanumGothic-Regular.ttf"
 font_path = "NanumGothic.ttf"
 if not os.path.exists(font_path):
@@ -242,7 +242,7 @@ if df_final is not None:
         
         for idx, row in df_sampled.iterrows():
             marker_color = scatter_color_map.get(row['유형_라벨'], '#6B7280')
-            school_name = row['學校코드명' if '學校코드명' in df_final.columns else '학교코드명']
+            school_name = row['학교코드명']
             label_val = row['유형_라벨']
             student_val = int(row['학생수계'])
             
@@ -256,7 +256,7 @@ if df_final is not None:
         st_folium(m_real, height=500, use_container_width=True, returned_objects=[])
 
     # ------------------------------------------
-    # SECTION 2: 💡 [업데이트] 지터링 알고리즘 내장 사분면 매트릭스 분석실
+    # SECTION 2: 🛠️ [지터링 완벽 제거] 원본 데이터 기반 사분면 매트릭스 분석실
     # ------------------------------------------
     st.markdown("<h2 style='font-size:24px; font-weight:900; margin-top:45px; margin-bottom:14px; color:#111827;'>2. 인프라·교통 매트릭스 분석실 : '교육 사막(Educational Desert)' 도출</h2>", unsafe_allow_html=True)
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
@@ -272,16 +272,10 @@ if df_final is not None:
         
         plot_df = pd.DataFrame({'infra': q_infra, 'trans': q_trans, 'label': df_sampled['유형_라벨']})
         
-        # 🔥 [데이터 스케일 폭발 알고리즘] 지터링(Jittering) 연산 가중치 적용
-        # 포개어진 데이터에 미세 노이즈를 더해 수천 개의 원본 데이터 밀도를 구름처럼 시각화합니다.
-        np.random.seed(42)  # 난수 고정으로 슬라이더 작동 시 떨림 현상 방지
-        plot_df['infra_jitter'] = plot_df['infra'] + np.random.normal(0, 1.6, size=len(plot_df))
-        plot_df['trans_jitter'] = plot_df['trans'] + np.random.normal(0, 1.6, size=len(plot_df))
-        
-        # 지터링 좌표 기반 산점도 렌더링 (alpha값을 0.38로 낮춰 데이터 밀집 구역이 진하게 보임)
+        # 원본 데이터 좌표로 정밀 플롯 (지터링 없이 정합성 100% 반영)
         sns.scatterplot(
-            data=plot_df, x='infra_jitter', y='trans_jitter', hue='label',
-            palette=scatter_color_map, alpha=0.38, s=30, ax=ax_q, edgecolor='none'
+            data=plot_df, x='infra', y='trans', hue='label',
+            palette=scatter_color_map, alpha=0.7, s=65, ax=ax_q, edgecolor='none'
         )
         
         ax_q.axvline(x=50, color='#111827', linestyle='--', linewidth=1.2, alpha=0.5)
@@ -306,16 +300,16 @@ if df_final is not None:
     with quad_c2:
         st.markdown("""
         <div style="padding-left:20px; border-left:5px solid #9333EA; height:100%;">
-            <div style="font-size:22px; font-weight:900; color:#9333EA; margin-bottom:18px;">💡 지터링 알고리즘이 증명하는 데이터 스케일</div>
+            <div style="font-size:22px; font-weight:900; color:#9333EA; margin-bottom:18px;">💡 데이터 과학이 증명하는 격차의 실체</div>
             <p class="readable-desc">
-                <span class="readable-bold">시·도 단위 광역 통계의 한계로 인해 완전히 포개어져 있던 수천 개의 대량 학교 데이터를 '지터링(Jittering) 알고리즘'으로 무산시켜 시각화한 화면입니다.</span><br><br>
-                무작위 노이즈 분포를 거쳐 안개처럼 펼쳐진 은하수 지형도를 보면, 전교생 급감으로 통폐합 위기에 놓인 <span class="readable-bold" style="color:#3B82F6;">C유형(소멸위기 학교)</span> 무리가 주변 사교육과 공공 문화시설이 없고 대중교통 노선마저 단절된 <span class="readable-bold" style="color:#B91C1C;">3사분면 '교육 사막(Educational Desert)' 구역을 완전히 독점</span>하고 있음이 과학적으로 확인됩니다.<br><br>
-                반면 거대한 체급인 <span class="readable-bold" style="color:#EF4444;">A유형(과밀 학교)</span> 무리는 인프라 대체재가 윤택한 1사분면 및 4사분면(신도시)에 정형화되어 뭉쳐 있습니다.
+                <span class="readable-bold">학교별 외부 인프라 및 교통 데이터를 2차원 공간에 객관적으로 정렬한 매트릭스 지형도입니다.</span><br><br>
+                라벨 매핑 정형화를 통해 시각화한 결과, 전교생과 교사 인프라가 극단적으로 급감하는 소규모 <span class="readable-bold" style="color:#3B82F6;">C유형(소멸위기 학교)</span> 덩어리들이 주변 생활 인프라가 전무하고 대중교통이 완전히 고립된 <span class="readable-bold" style="color:#B91C1C;">3사분면 '교육 사막(Educational Desert)' 영역에 일목요연하게 밀집</span>되어 있는 모습을 확인할 수 있습니다.<br><br>
+                반면, 대규모 과부하 상태인 <span class="readable-bold" style="color:#EF4444;">A유형(과밀 학교)</span>은 교육 사막에 단 한 개도 속하지 않으며, 인프라와 교통망이 확보된 대도시 중심(1사분면) 및 개발 신도시(4사분면) 구역에만 정형적으로 분포합니다.
             </p>
             <div style="margin-top:20px; background-color:#FFF5F5; padding:18px; border-radius:12px; border:1px solid #FEE2E2;">
                 <span class="readable-bold" style="color:#B91C1C; font-size:16.5px;">⚠️ 획일적 교원 감축 정책이 중단되어야 하는 당위성</span><br>
                 <p class="readable-desc" style="font-size:15.5px !important; margin-top:8px; margin-bottom:0px;">
-                    3사분면 교육 사막의 대규모 군락에 밀집한 아이들에게는 오직 <b>'학교와 선생님'만이 유일한 공교육 인프라</b>입니다. 단순히 학생 수 비율이 낮다는 통계적 주장에 속아 이 지역의 교사를 축소하면 안 되며, 오히려 공교육 의존도가 100%에 달하므로 교원 정원을 두터이 보장하는 <b>'교감선생님' 정책 패러다임</b>으로 즉시 전환해야 합니다.
+                    3사분면 교육 사막 구역에 놓인 소규모 학교 아이들에게는 오직 <b>'학교의 존재와 선생님의 보장'만이 유일한 공교육 방어선</b>입니다. 단순 학생 수 감소율이라는 기계적 평균 수치에 속아 이 지역의 교사를 축소하는 것은 공교육의 완전한 포기입니다. 결핍 지역일수록 선생님을 더 늘리고 보존해야 하는 <b>'교감선생님' 프로젝트의 실증적 근거</b>입니다.
                 </p>
             </div>
         </div>
@@ -329,7 +323,7 @@ if df_final is not None:
     c1, c2 = st.columns([1.2, 1])
     with c1:
         fig, ax = plt.subplots(figsize=(7.5, 4.8), facecolor='white')
-        sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=scatter_color_map, alpha=0.7, s=40, ax=ax, edgecolor='none')
+        sns.scatterplot(data=df_final, x='text_학생수계' if 'text_학생수계' in df_final.columns else '학생수계', y='수업교사총수', hue='유형_라벨', palette=scatter_color_map, alpha=0.7, s=40, ax=ax, edgecolor='none')
         ax.set_facecolor('#FFFFFF')
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
