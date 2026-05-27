@@ -14,7 +14,7 @@ from sklearn.linear_model import LinearRegression
 # 1. 페이지 레이아웃 및 테마 최적화
 st.set_page_config(page_title="Project EduBridge AI", layout="wide", initial_sidebar_state="collapsed")
 
-# CSS 주입: 올블랙 텍스트 + 타이틀 크기 확대 + 슬라이더 선 보라색 강제 튜닝
+# CSS 주입: 올블랙 텍스트 + 타이틀 크기 확대 + 슬라이더(숫자/선/점) 정밀 튜닝
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -30,18 +30,23 @@ st.markdown("""
         backdrop-filter: blur(8px) !important;
     }
 
-    /* 💡 슬라이더(컨트롤러) '선과 손잡이' 보라색 튜닝 / 글자는 검은색 */
+    /* 💡 슬라이더(컨트롤러) 커스텀: 숫자는 검정, 선은 연보라, 점은 보라 */
     .stSlider > div[data-baseweb="slider"] > div > div > div {
-        background-color: #9333EA !important;
+        background-color: #D8B4FE !important; /* 바탕 선: 연보라색 */
     }
     .stSlider > div[data-baseweb="slider"] [role="slider"] {
-        background-color: #9333EA !important;
+        background-color: #9333EA !important; /* 손잡이 점: 진한 보라색 */
         border: none !important;
-        box-shadow: 0 0 0 0.2rem rgba(147, 51, 234, 0.2) !important;
+        box-shadow: 0 0 0 0.2rem rgba(147, 51, 234, 0.25) !important; /* 점 주변 연한 그림자 */
     }
-    .stSlider label, div[data-testid="stThumbValue"] {
-        color: #111827 !important; /* 글자는 검은색으로 통일 */
-        font-weight: 600 !important;
+    
+    /* 슬라이더 위 숫자 및 라벨 텍스트: 강제 검은색 지정 */
+    div[data-testid="stThumbValue"], 
+    div[data-testid="stThumbValue"] > div, 
+    div[data-testid="stThumbValue"] > span,
+    .stSlider label {
+        color: #111827 !important; /* 검은색 */
+        font-weight: 700 !important;
     }
     
     iframe {
@@ -58,9 +63,9 @@ st.markdown("""
         margin-bottom: 24px;
     }
     
-    /* 💡 타이틀 및 이름 크기 대폭 확대 */
+    /* 타이틀 및 이름 크기 대폭 확대 */
     .project-title {
-        font-size: 58px; /* 기존 46px -> 58px 확대 */
+        font-size: 58px; 
         font-weight: 800;
         letter-spacing: -1.5px;
         color: #111827;
@@ -69,7 +74,7 @@ st.markdown("""
     }
     
     .team-sub {
-        font-size: 24px; /* 기존 16px -> 24px 확대 */
+        font-size: 24px; 
         font-weight: 600;
         color: #111827;
         letter-spacing: 0.5px;
@@ -143,21 +148,21 @@ if df_final is not None:
     # SECTION 1: MAP
     st.markdown("<h2 style='font-size:22px; font-weight:800; margin-bottom:6px; color:#111827;'>1. 대한민국 인프라 양극화 및 취약도 지형도</h2>", unsafe_allow_html=True)
     
-    # 💡 지도 컨트롤러
+    # 지도 컨트롤러
     sample_size = st.slider("지도 시각화 학교 수 조절 (컨트롤러)", min_value=500, max_value=min(10000, len(df_final)), value=3000, step=500)
     
     _, map_center_col, _ = st.columns([1, 10, 1])
     with map_center_col:
         m_real = folium.Map(location=[36.2, 127.8], zoom_start=7, tiles='CartoDB positron')
         
-        # 💡 [지도 숫자 얇게 튜닝] font-weight를 800에서 400(normal)으로 변경
+        # 지도 클러스터 CSS (숫자 얇게 유지)
         cluster_css = """
         <style>
         .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large { background-color: rgba(216, 180, 254, 0.6) !important; }
         .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div { 
             background-color: rgba(168, 85, 247, 0.9) !important; 
             color: white !important; 
-            font-weight: 400 !important; /* 숫자를 얇게 */
+            font-weight: 400 !important; 
             font-size: 14px !important;
         }
         </style>
@@ -213,7 +218,7 @@ if df_final is not None:
     st.markdown("<p style='font-size:18px; font-weight:800; color:#111827; margin-bottom:2px;'>- 학령인구 감소에 따른 미래 교육 여건 예측 -</p>", unsafe_allow_html=True)
     st.markdown("<p style='color:#111827; font-size:14px; margin-bottom:20px;'>정부의 교원 임용 축소 정책 유무에 따른 교원 1인당 학생 수 예측 시뮬레이터</p>", unsafe_allow_html=True)
     
-    # 💡 예측 목표 연도 컨트롤러
+    # 예측 목표 연도 컨트롤러
     target_year = st.slider("예측 목표 연도를 설정하세요.", min_value=2025, max_value=2030, value=2030, step=1)
     
     # Regression Data
@@ -245,7 +250,7 @@ if df_final is not None:
         st.pyplot(fig_p)
         
     with p2:
-        # 💡 '평균의 함정' 따옴표 제거 및 글자는 검은색 유지 (포인트 컬러 보라색)
+        # 평균의 함정 따옴표 제거됨
         st.markdown(f"""
         <div style="padding-left:18px; border-left:4px solid #111827; height:100%; color:#111827;">
             <div style="font-size:19px; font-weight:800; margin-bottom:14px;">- 미래 교육 환경 예측 -</div>
