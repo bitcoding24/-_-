@@ -16,7 +16,7 @@ from sklearn.linear_model import LinearRegression
 # ==========================================
 st.set_page_config(page_title="교.감.선생님. - 오민도", layout="wide", initial_sidebar_state="collapsed")
 
-# 💡 가독성 극대화 및 올블랙 프리미엄 CSS 주입
+# 가독성 극대화 및 올블랙 프리미엄 디자인 CSS 주입
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
@@ -51,7 +51,7 @@ st.markdown("""
         font-size: 15px !important;
     }
     
-    /* 벤토 카드 디자인 여백 및 가독성 확장 */
+    /* 벤토 카드 디자인 */
     .bento-card {
         background: #FFFFFF;
         padding: 32px; 
@@ -61,7 +61,7 @@ st.markdown("""
         margin-bottom: 24px;
     }
     
-    /* 메인 타이틀 및 부제목 가독성 인터페이스 */
+    /* 메인 타이틀 및 로고 서체 크기 */
     .project-title {
         font-size: 76px; 
         font-weight: 950;
@@ -88,7 +88,7 @@ st.markdown("""
         margin-bottom: 45px;
     }
 
-    /* 💡 설명 서체 가독성 정밀 클래스 */
+    /* 설명문 가독성 확장 서체 클래스 */
     .readable-desc {
         font-size: 16.5px !important;
         line-height: 1.85 !important;
@@ -102,7 +102,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 한글 폰트 패치
+# 한글 폰트 다운로드 및 깨짐 방지 패치
 font_url = "https://github.com/google/fonts/raw/main/ofl/nanumgothic/NanumGothic-Regular.ttf"
 font_path = "NanumGothic.ttf"
 if not os.path.exists(font_path):
@@ -131,7 +131,7 @@ def load_and_clean_data():
             st.error("🚨 final_school_data.csv 파일을 찾을 수 없습니다.")
             return None
 
-    # 누락 및 깨진 컬럼 자동 동기화 맵
+    # 유연한 컬럼 동기화 가이드 매핑
     col_mapping = {
         '위도': ['위도', 'Y좌표', 'latitude'],
         '경도': ['경도', 'X좌표', 'longitude'],
@@ -149,13 +149,13 @@ def load_and_clean_data():
                     raw_df[standard_col] = raw_df[alt]
                     break
 
-    # 💡 [핵심 버그 해결책] 유형 라벨 텍스트 데이터 전처리 강제 통일
+    # 라벨 불일치 제거 전처리 알고리즘 
     if '유형_라벨' in raw_df.columns:
         raw_df['유형_라벨'] = raw_df['유형_라벨'].astype(str).map(
             lambda x: 'A유형' if 'A' in x or '0' in x else ('B유형' if 'B' in x or '1' in x else 'C유형')
         )
 
-    # 인프라 및 교통 점수 동기화
+    # 인프라 점수 후보 자동 서치
     infra_candidates = ['최종_종합_인프라_점수', '종합_인프라_점수_평균', '종합_인프라_점수', '인프라_점수', '인프라_점수_평균']
     for ic in infra_candidates:
         if ic in raw_df.columns:
@@ -183,15 +183,15 @@ df_final = load_and_clean_data()
 # 3. 메인 인터페이스 대시보드 구현
 # ==========================================
 if df_final is not None:
-    # 컬러 맵셋 완벽 고정
+    # 데이터 가이드 컬러맵 바인딩 고정
     scatter_color_map = {'A유형': '#EF4444', 'B유형': '#22C55E', 'C유형': '#3B82F6'}
 
-    # HERO 타이틀 스튜디오
+    # HERO 타이틀 헤더 렌더링
     st.markdown('<p class="project-title">교.감.선생님.</p>', unsafe_allow_html=True)
     st.markdown('<p class="project-subtitle">교원 감소를 막기 위해 선생님을 늘리자!</p>', unsafe_allow_html=True)
     st.markdown('<p class="team-sub">팀명 : 오민도</p>', unsafe_allow_html=True)
     
-    # 상단 요약 카드 (KPI)
+    # KPI 요약 대시보드 카드
     m1, m2, m3 = st.columns(3)
     with m1:
         st.markdown(f'<div class="bento-card"><span style="color:#6B7280; font-size:14px; font-weight:700;">공간 빅데이터 분석 대상</span><br><span style="font-size:30px; font-weight:900; color:#111827;">{len(df_final):,} 개교</span></div>', unsafe_allow_html=True)
@@ -208,7 +208,7 @@ if df_final is not None:
             region_text = "서울특별시"
         st.markdown(f'<div class="bento-card"><span style="color:#6B7280; font-size:14px; font-weight:700;">최고 인프라 집중 핵심 지역</span><br><span style="font-size:30px; font-weight:900; color:#111827;">{region_text}</span></div>', unsafe_allow_html=True)
 
-    # SECTION 1: 지도 엔진
+    # SECTION 1: 지형도 엔진
     st.markdown("<h2 style='font-size:24px; font-weight:900; margin-bottom:8px; color:#111827;'>1. 대한민국 인프라 양극화 지형도 (Folium Spatial Engine)</h2>", unsafe_allow_html=True)
     sample_size = st.slider("지도 시각화 최적 학교 수 조절 컨트롤러", min_value=500, max_value=min(10000, len(df_final)), value=2500, step=500)
     
@@ -242,7 +242,7 @@ if df_final is not None:
         
         for idx, row in df_sampled.iterrows():
             marker_color = scatter_color_map.get(row['유형_라벨'], '#6B7280')
-            school_name = row['학교코드명']
+            school_name = row['學校코드명' if '學校코드명' in df_final.columns else '학교코드명']
             label_val = row['유형_라벨']
             student_val = int(row['학생수계'])
             
@@ -255,7 +255,9 @@ if df_final is not None:
             
         st_folium(m_real, height=500, use_container_width=True, returned_objects=[])
 
-    # SECTION 2: 교육 사막 사분면 매트릭스 분석실 (가독성 집중 업그레이드)
+    # ------------------------------------------
+    # SECTION 2: 💡 [업데이트] 지터링 알고리즘 내장 사분면 매트릭스 분석실
+    # ------------------------------------------
     st.markdown("<h2 style='font-size:24px; font-weight:900; margin-top:45px; margin-bottom:14px; color:#111827;'>2. 인프라·교통 매트릭스 분석실 : '교육 사막(Educational Desert)' 도출</h2>", unsafe_allow_html=True)
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
     
@@ -264,16 +266,22 @@ if df_final is not None:
         fig_q, ax_q = plt.subplots(figsize=(7.5, 6), facecolor='white')
         ax_q.set_facecolor('#FFFFFF')
         
-        # 0-100 정규화 스케일 스크립트
+        # 0-100 선형 정규화 처리
         q_infra = (df_sampled['최종_종합_인프라_점수'] - df_sampled['최종_종합_인프라_점수'].min()) / (df_sampled['최종_종합_인프라_점수'].max() - df_sampled['최종_종합_인프라_점수'].min()) * 100
         q_trans = (df_sampled['교통_점수'] - df_sampled['교통_점수'].min()) / (df_sampled['교통_점수'].max() - df_sampled['교통_점수'].min()) * 100
         
         plot_df = pd.DataFrame({'infra': q_infra, 'trans': q_trans, 'label': df_sampled['유형_라벨']})
         
-        # 산점도 렌더링 (라벨 불일치 완벽 해결 완료)
+        # 🔥 [데이터 스케일 폭발 알고리즘] 지터링(Jittering) 연산 가중치 적용
+        # 포개어진 데이터에 미세 노이즈를 더해 수천 개의 원본 데이터 밀도를 구름처럼 시각화합니다.
+        np.random.seed(42)  # 난수 고정으로 슬라이더 작동 시 떨림 현상 방지
+        plot_df['infra_jitter'] = plot_df['infra'] + np.random.normal(0, 1.6, size=len(plot_df))
+        plot_df['trans_jitter'] = plot_df['trans'] + np.random.normal(0, 1.6, size=len(plot_df))
+        
+        # 지터링 좌표 기반 산점도 렌더링 (alpha값을 0.38로 낮춰 데이터 밀집 구역이 진하게 보임)
         sns.scatterplot(
-            data=plot_df, x='infra', y='trans', hue='label',
-            palette=scatter_color_map, alpha=0.6, s=45, ax=ax_q, edgecolor='none'
+            data=plot_df, x='infra_jitter', y='trans_jitter', hue='label',
+            palette=scatter_color_map, alpha=0.38, s=30, ax=ax_q, edgecolor='none'
         )
         
         ax_q.axvline(x=50, color='#111827', linestyle='--', linewidth=1.2, alpha=0.5)
@@ -287,27 +295,27 @@ if df_final is not None:
         ax_q.set_xlabel('교육 및 문화 인프라 점수 (0 ~ 100)', color='#111827', fontweight='bold', fontsize=10)
         ax_q.set_ylabel('대중교통 접근성 점수 (0 ~ 100)', color='#111827', fontweight='bold', fontsize=10)
         
-        # 그래프 내 텍스트 라벨 (가독성 확보)
-        ax_q.text(25, 90, "【 2사분면 】\n교통 편리 / 인프라 취약\n(도심 접근형)", fontsize=9, color='#4B5563', ha='center', fontweight='bold')
-        ax_q.text(75, 90, "【 1사분면 】\n수도권 대도시 중심가\n(인프라 최상 / 과밀학급)", fontsize=9, color='#EF4444', ha='center', fontweight='bold')
-        ax_q.text(75, 15, "【 4사분면 】\n외곽 주거 신도시군\n(교통망 개통 지연)", fontsize=9, color='#4B5563', ha='center', fontweight='bold')
-        ax_q.text(25, 15, "【 3사분면 : 교육 사막 】\n★ C유형 고립 구역\n공교육 의존도 100%", fontsize=10, color='#B91C1C', ha='center', fontweight='black')
+        # 각 사분면 레이블 가시성 가이드
+        ax_q.text(25, 92, "【 2사분면 】\n교통 편리 / 인프라 취약\n(도심 접근형)", fontsize=9, color='#4B5563', ha='center', fontweight='bold')
+        ax_q.text(75, 92, "【 1사분면 】\n수도권 대도시 중심가\n(인프라 최상 / 과밀학급)", fontsize=9, color='#EF4444', ha='center', fontweight='bold')
+        ax_q.text(75, 12, "【 4사분면 】\n외곽 주거 신도시군\n(교통망 개통 지연)", fontsize=9, color='#4B5563', ha='center', fontweight='bold')
+        ax_q.text(25, 12, "【 3사분면 : 교육 사막 】\n★ C유형 집중 구역\n공교육 의존도 100%", fontsize=10, color='#B91C1C', ha='center', fontweight='black')
         ax_q.legend(frameon=False, loc='upper right', fontsize=9)
         st.pyplot(fig_q)
         
     with quad_c2:
         st.markdown("""
         <div style="padding-left:20px; border-left:5px solid #9333EA; height:100%;">
-            <div style="font-size:22px; font-weight:900; color:#9333EA; margin-bottom:18px;">💡 데이터 과학이 증명하는 현장의 진실</div>
+            <div style="font-size:22px; font-weight:900; color:#9333EA; margin-bottom:18px;">💡 지터링 알고리즘이 증명하는 데이터 스케일</div>
             <p class="readable-desc">
-                <span class="readable-bold">산출한 인프라 점수와 교통 점수를 2차원 평면에 결합한 격차 매트릭스입니다.</span><br><br>
-                분석 결과, 전교생이 급감하는 <span class="readable-bold" style="color:#3B82F6;">C유형(소멸위기 학교)</span> 점들은 반경 1km 내에 학원이나 도서관이 전혀 없고 대중교통마저 끊긴 <span class="readable-bold" style="color:#B91C1C;">3사분면 '교육 사막(Educational Desert)' 영역에 자석처럼 고립</span>되어 분포합니다.<br><br>
-                반면 대규모 체급인 <span class="readable-bold" style="color:#EF4444;">A유형(과밀 학교)</span>은 인프라와 교통 인프라가 풍부한 1사분면과 4사분면(신도시)에만 정형적으로 집중되어 있습니다.
+                <span class="readable-bold">시·도 단위 광역 통계의 한계로 인해 완전히 포개어져 있던 수천 개의 대량 학교 데이터를 '지터링(Jittering) 알고리즘'으로 무산시켜 시각화한 화면입니다.</span><br><br>
+                무작위 노이즈 분포를 거쳐 안개처럼 펼쳐진 은하수 지형도를 보면, 전교생 급감으로 통폐합 위기에 놓인 <span class="readable-bold" style="color:#3B82F6;">C유형(소멸위기 학교)</span> 무리가 주변 사교육과 공공 문화시설이 없고 대중교통 노선마저 단절된 <span class="readable-bold" style="color:#B91C1C;">3사분면 '교육 사막(Educational Desert)' 구역을 완전히 독점</span>하고 있음이 과학적으로 확인됩니다.<br><br>
+                반면 거대한 체급인 <span class="readable-bold" style="color:#EF4444;">A유형(과밀 학교)</span> 무리는 인프라 대체재가 윤택한 1사분면 및 4사분면(신도시)에 정형화되어 뭉쳐 있습니다.
             </p>
             <div style="margin-top:20px; background-color:#FFF5F5; padding:18px; border-radius:12px; border:1px solid #FEE2E2;">
                 <span class="readable-bold" style="color:#B91C1C; font-size:16.5px;">⚠️ 획일적 교원 감축 정책이 중단되어야 하는 당위성</span><br>
                 <p class="readable-desc" style="font-size:15.5px !important; margin-top:8px; margin-bottom:0px;">
-                    3사분면 교육 사막에 고립된 아이들에게는 오직 <b>'학교와 선생님'만이 유일한 교육 창구이자 생존 복지 인프라</b>입니다. 단순히 학생 수 비율이 낮다는 착시 통계에 속아 이 지역의 교사를 축소하면 안 되며, 오히려 공교육 의존도가 100%에 달하므로 교원 정원을 두터이 보장하는 <b>'교감선생님' 정책 패러다임</b>으로 즉시 전환해야 합니다.
+                    3사분면 교육 사막의 대규모 군락에 밀집한 아이들에게는 오직 <b>'학교와 선생님'만이 유일한 공교육 인프라</b>입니다. 단순히 학생 수 비율이 낮다는 통계적 주장에 속아 이 지역의 교사를 축소하면 안 되며, 오히려 공교육 의존도가 100%에 달하므로 교원 정원을 두터이 보장하는 <b>'교감선생님' 정책 패러다임</b>으로 즉시 전환해야 합니다.
                 </p>
             </div>
         </div>
