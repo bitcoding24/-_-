@@ -139,7 +139,7 @@ def load_and_clean_data():
         '수업교사총수': ['수업교사총수', '교사수', '교원수', '총교사수'],
         '학교코드명': ['학교코드명', '학교명', '학교이름'],
         '유형_라벨': ['유형_라벨', 'cluster', '군집', '라벨'],
-        '지역': ['지역', '시도명', '시도', '주소']
+        '지역': ['지역', '시도명', '시도', '주소', '시도별']
     }
     
     for standard_col, alternative_cols in col_mapping.items():
@@ -178,6 +178,14 @@ def load_and_clean_data():
     return raw_df.dropna(subset=['위도', '경도'])
 
 df_final = load_and_clean_data()
+
+# 실질 교사 1인당 학생 수 연산 및 예외 처리 보호망
+if df_final is not None:
+    if '학생수계' in df_final.columns and '수업교사총수' in df_final.columns:
+        valid_teachers = df_final['수업교사총수'].replace(0, np.nan)
+        df_final['교원1인당학생수'] = df_final['학생수계'] / valid_teachers
+        # 극단적 무한대 및 오류값 정돈 제거
+        df_final = df_final.replace([np.inf, -np.inf], np.nan).dropna(subset=['교원1인당학생수'])
 
 # ==========================================
 # 3. 메인 인터페이스 대시보드 구현
@@ -255,9 +263,7 @@ if df_final is not None:
             
         st_folium(m_real, height=500, use_container_width=True, returned_objects=[])
 
-    # ------------------------------------------
-    # SECTION 2: 🛠️ [지터링 완벽 제거] 원본 데이터 기반 사분면 매트릭스 분석실
-    # ------------------------------------------
+    # SECTION 2: 원본 데이터 기반 사분면 매트릭스 분석실
     st.markdown("<h2 style='font-size:24px; font-weight:900; margin-top:45px; margin-bottom:14px; color:#111827;'>2. 인프라·교통 매트릭스 분석실 : '교육 사막(Educational Desert)' 도출</h2>", unsafe_allow_html=True)
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
     
@@ -266,13 +272,11 @@ if df_final is not None:
         fig_q, ax_q = plt.subplots(figsize=(7.5, 6), facecolor='white')
         ax_q.set_facecolor('#FFFFFF')
         
-        # 0-100 선형 정규화 처리
         q_infra = (df_sampled['최종_종합_인프라_점수'] - df_sampled['최종_종합_인프라_점수'].min()) / (df_sampled['최종_종합_인프라_점수'].max() - df_sampled['최종_종합_인프라_점수'].min()) * 100
         q_trans = (df_sampled['교통_점수'] - df_sampled['교통_점수'].min()) / (df_sampled['교통_점수'].max() - df_sampled['교통_점수'].min()) * 100
         
         plot_df = pd.DataFrame({'infra': q_infra, 'trans': q_trans, 'label': df_sampled['유형_라벨']})
         
-        # 원본 데이터 좌표로 정밀 플롯 (지터링 없이 정합성 100% 반영)
         sns.scatterplot(
             data=plot_df, x='infra', y='trans', hue='label',
             palette=scatter_color_map, alpha=0.7, s=65, ax=ax_q, edgecolor='none'
@@ -289,7 +293,6 @@ if df_final is not None:
         ax_q.set_xlabel('교육 및 문화 인프라 점수 (0 ~ 100)', color='#111827', fontweight='bold', fontsize=10)
         ax_q.set_ylabel('대중교통 접근성 점수 (0 ~ 100)', color='#111827', fontweight='bold', fontsize=10)
         
-        # 각 사분면 레이블 가시성 가이드
         ax_q.text(25, 92, "【 2사분면 】\n교통 편리 / 인프라 취약\n(도심 접근형)", fontsize=9, color='#4B5563', ha='center', fontweight='bold')
         ax_q.text(75, 92, "【 1사분면 】\n수도권 대도시 중심가\n(인프라 최상 / 과밀학급)", fontsize=9, color='#EF4444', ha='center', fontweight='bold')
         ax_q.text(75, 12, "【 4사분면 】\n외곽 주거 신도시군\n(교통망 개통 지연)", fontsize=9, color='#4B5563', ha='center', fontweight='bold')
@@ -316,14 +319,72 @@ if df_final is not None:
         """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # SECTION 3: 머신러닝 AI 분석 해설
-    st.markdown("<h2 style='font-size:24px; font-weight:900; margin-top:45px; margin-bottom:14px; color:#111827;'>3. 머신러닝 AI 군집 분석 결과 및 해설</h2>", unsafe_allow_html=True)
+    # ------------------------------------------
+    # 💡 [새로운 세션 추가] SECTION 3: 지역별 분산(Box Plot) 분석실
+    # ------------------------------------------
+    st.markdown("<h2 style='font-size:24px; font-weight:900; margin-top:45px; margin-bottom:14px; color:#111827;'>3. 지역별 교사 1인당 학생 수 분산 분석 : '평균 13명의 착시' 고발</h2>", unsafe_allow_html=True)
+    st.markdown('<div class="bento-card">', unsafe_allow_html=True)
+    
+    box_c1, box_c2 = st.columns([1.2, 1])
+    with box_c1:
+        if '교원1인당학생수' in df_final.columns and '지역' in df_final.columns:
+            fig_b, ax_b = plt.subplots(figsize=(7.5, 5.2), facecolor='white')
+            ax_b.set_facecolor('#FFFFFF')
+            
+            # 중위수 기준 정렬하여 시각적 전문성 확보
+            region_order = df_final.groupby('지역')['교원1인당학생수'].median().sort_values(ascending=False).index
+            
+            # 박스플롯 구현 (안정적인 데이터 표현을 위해 이상치 크기 조절)
+            sns.boxplot(
+                data=df_final, x='지역', y='교원1인당학생수', order=region_order,
+                palette='Purples', ax=ax_b, fliersize=2, width=0.6
+            )
+            
+            # 가이드 전국 평균선 주입 (가시성 높은 레드 대시라인)
+            ax_b.axhline(y=avg_ratio, color='#EF4444', linestyle='--', linewidth=1.5, label=f'전국 평균선 ({avg_ratio}명)')
+            
+            ax_b.spines['top'].set_visible(False)
+            ax_b.spines['right'].set_visible(False)
+            ax_b.set_xticklabels(ax_b.get_xticklabels(), rotation=30, ha='right', fontsize=9)
+            ax_b.set_xlabel('분석 대상 시·도 지역', color='#111827', fontweight='bold', fontsize=10)
+            ax_b.set_ylabel('교사 1인당 담당 학생 수 (명)', color='#111827', fontweight='bold', fontsize=10)
+            ax_b.legend(frameon=False, loc='upper right', fontsize=9)
+            
+            # 상단 Y축 범위 최적화 보정 (가독성 방해 방지)
+            max_y = min(df_final['교원1인당학생수'].max(), 35)
+            ax_b.set_ylim(0, max_y + 2)
+            
+            st.pyplot(fig_b)
+        else:
+            st.info("지역별 교원 분산 추계를 위한 매핑 데이터 대기 중")
+            
+    with box_c2:
+        st.markdown(f"""
+        <div style="padding-left:20px; border-left:5px solid #9333EA; height:100%;">
+            <div style="font-size:22px; font-weight:900; color:#9333EA; margin-bottom:18px;">💡 전국 평균이라는 '거짓 통계'의 실체</div>
+            <p class="readable-desc">
+                정부는 대한민국 교사 1인당 학생 수 지표가 <span class="readable-bold" style="color:#EF4444;">빨간 점선(평균 {avg_ratio}명)</span> 부근에 도달했기 때문에 교사를 대폭 줄여도 된다고 말합니다. 하지만 지역별 분산(Box Plot) 데이터를 쪼개 보면 충격적인 사실이 드러납니다.<br><br>
+                경기도와 서울 등 수도권 신도시는 박스의 상단선이 <span class="readable-bold" style="color:#B91C1C;">25명~30명 이상을 돌파하는 극단적인 '과밀 수렁'</span>에 빠져 교사들이 한계에 부딪힌 상태입니다.<br><br>
+                반면 전남, 강원 등 소멸 취약 지역은 전교생 소멸로 인해 수치상 2~3명대로 극단적으로 낮게 찍힙니다. <span class="readable-bold">이 두 극단적인 양극화 데이터가 섞여서 만들어진 허수가 바로 기획재정부의 '평균 13명'입니다.</span>
+            </p>
+            <div style="margin-top:20px; background-color:#F3E8FF; padding:18px; border-radius:12px; border:1px solid #D8B4FE;">
+                <span class="readable-bold" style="color:#4C1D95; font-size:16.5px;">🎯 분산 데이터가 제언하는 정책 대안</span><br>
+                <p class="readable-desc" style="font-size:15.5px !important; margin-top:8px; margin-bottom:0px;">
+                    평균의 함정에 가려진 격차를 무시하고 일괄적으로 교원을 감축하면, 수도권 과밀학급의 교육 환경은 완전히 파괴되며 지방 소규모 학교는 '최소 필수 과목 교사'마저 공급받지 못해 공교육 마비가 일어납니다. <b>통계적 평균 수치에 기반한 교원 감축 정책을 당장 전면 중단해야 하는 명백한 데이터적 증거</b>입니다.
+                </p>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # SECTION 4: 머신러닝 AI 분석 해설
+    st.markdown("<h2 style='font-size:24px; font-weight:900; margin-top:45px; margin-bottom:14px; color:#111827;'>4. 머신러닝 AI 군집 분석 결과 및 해설</h2>", unsafe_allow_html=True)
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
     
     c1, c2 = st.columns([1.2, 1])
     with c1:
         fig, ax = plt.subplots(figsize=(7.5, 4.8), facecolor='white')
-        sns.scatterplot(data=df_final, x='text_학생수계' if 'text_학생수계' in df_final.columns else '학생수계', y='수업교사총수', hue='유형_라벨', palette=scatter_color_map, alpha=0.7, s=40, ax=ax, edgecolor='none')
+        sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=scatter_color_map, alpha=0.7, s=40, ax=ax, edgecolor='none')
         ax.set_facecolor('#FFFFFF')
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
@@ -351,49 +412,11 @@ if df_final is not None:
         """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # SECTION 4: 시계열 선형 회귀 시뮬레이터
-    st.markdown("<h2 style='font-size:24px; font-weight:900; margin-top:45px; margin-bottom:14px; color:#111827;'>4. 시계열 선형 회귀 시뮬레이터 : 미래 예측</h2>", unsafe_allow_html=True)
+    # SECTION 5: 시계열 선형 회귀 시뮬레이터
+    st.markdown("<h2 style='font-size:24px; font-weight:900; margin-top:45px; margin-bottom:14px; color:#111827;'>5. 시계열 선형 회귀 시뮬레이터 : 미래 예측</h2>", unsafe_allow_html=True)
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
     
     target_year = st.slider("예측 시뮬레이션 목표 연도 지정", min_value=2025, max_value=2030, value=2030, step=1)
     
     hist_years = np.array([2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024])
-    hist_ratio = np.array([16.02, 15.38, 14.94, 14.65, 14.48, 14.21, 13.99, 13.79])
-    model_lr = LinearRegression().fit(hist_years.reshape(-1, 1), hist_ratio)
-    future_years = np.array(list(range(2025, target_year + 1)))
-    
-    pred_trend = model_lr.predict(future_years.reshape(-1, 1))
-    pred_bottleneck_base = [13.65, 13.55, 13.50, 13.48, 13.47, 13.46]
-    pred_bottleneck = pred_bottleneck_base[:len(future_years)]
-    
-    p1, p2 = st.columns([1.2, 1])
-    with p1:
-        fig_p, ax_p = plt.subplots(figsize=(7.5, 4.6), facecolor='white')
-        ax_p.plot(hist_years, hist_ratio, marker='o', color='#8B5CF6', linewidth=2.5, label='실제 통계 추이 (2017-2024)')
-        if len(future_years) > 0:
-            ax_p.plot(future_years, pred_trend, linestyle='--', marker='s', color='#C084FC', linewidth=1.8, label='단순 기계적 추세선')
-            ax_p.plot(future_years, pred_bottleneck, linestyle='--', marker='^', color='#9333EA', linewidth=2.2, label='임용 절벽 정책 반영선')
-            ax_p.text(future_years[-1], pred_trend[-1] - 0.25, f"{pred_trend[-1]:.2f}명", ha='center', fontsize=9, color='#C084FC', fontweight='bold')
-            ax_p.text(future_years[-1], pred_bottleneck[-1] + 0.15, f"{pred_bottleneck[-1]:.2f}명", ha='center', fontsize=9, color='#9333EA', fontweight='bold')
-        
-        ax_p.set_facecolor('#FFFFFF')
-        ax_p.set_ylim(10.5, 16.8)
-        ax_p.legend(frameon=False, loc='upper right', fontsize=9)
-        st.pyplot(fig_p)
-    with p2:
-        st.markdown(f"""
-        <div style="padding-left:18px; border-left:4px solid #111827; height:100%;">
-            <div style="font-size:20px; font-weight:800; color:#111827; margin-bottom:14px;">- '평균의 함정'과 수급 병목 리스크 -</div>
-            <p class="readable-desc">
-                정부는 학생이 급감하므로 교원 수급 여건이 선진국형 자동 모델(연보라 점선)로 자동 안착할 것이라 주장합니다. 하지만 이는 통계적 기만입니다.<br><br>
-                정부의 계획대로 학생 수 감소율에만 맞춰 교사 임용 공급망까지 일방적으로 줄이는 획일적 감축이 단행될 경우, 미래 교육 여건 수치는 개선을 멈추고 <span class="readable-bold" style="color:#9333EA;">{pred_bottleneck[-1]:.2f}명 선에서 동결되는 심각한 '정책적 병목 현상(Bottleneck)'</span>이 도출됨을 머신러닝 시뮬레이터가 고발하고 있습니다.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    st.markdown("""
-        <div style="margin-top: 25px; padding-top: 14px; border-top: 1px dashed #E5E7EB; color: #6B7280; font-size: 13px;">
-            <span style="font-weight: 700; color: #9333EA;">※ 학술적 연구 근거 및 실증 출처 :</span> 본 미래 수급 예측 파이프라인 시뮬레이션 구조는 <b>한국노동사회연구소</b> 연구 문헌 지표 및 <b>국회미래연구원</b>의 <i>『학령인구 감소에 따른 교육 현장의 변화 및 정책 제언』</i> 국책 계량 경제 지표를 기반으로 구축되었습니다.
-        </div>
-    """, unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    hist_ratio = np.array(
