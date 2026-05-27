@@ -103,7 +103,7 @@ def load_final_data():
 df_final = load_final_data()
 
 if df_final is not None:
-    # 💡 [산점도 RGB 컬러 맵핑] A: Red, B: Green, C: Blue
+    # 💡 [산점도 및 지도 핀 RGB 컬러 맵핑] A: Red, B: Green, C: Blue
     unique_labels = df_final['유형_라벨'].unique()
     scatter_color_map = {}
     for label in unique_labels:
@@ -126,7 +126,7 @@ if df_final is not None:
     with m1:
         st.markdown(f'<div class="bento-card"><span style="color:#111827; font-size:14px; font-weight:700;">공간 분석 대상</span><br><span style="font-size:26px; font-weight:800; color:#111827;">{len(df_final):,} 개교</span></div>', unsafe_allow_html=True)
     with m2:
-        # [유지] 전국 평균 교사 1인당 학생 수 색상만 보라색 유지
+        # 전국 평균 교사 1인당 학생 수 색상만 보라색 유지
         avg_ratio = round(df_final['학생수계'].sum() / df_final['수업교사총수'].sum(), 1)
         st.markdown(f'<div class="bento-card"><span style="color:#111827; font-size:14px; font-weight:700;">전국 평균 교사 1인당 학생 수</span><br><span style="font-size:26px; font-weight:800; color:#9333EA;">{avg_ratio} 명</span></div>', unsafe_allow_html=True)
     with m3:
@@ -134,7 +134,7 @@ if df_final is not None:
         st.markdown(f'<div class="bento-card"><span style="color:#111827; font-size:14px; font-weight:700;">최고 인프라 집중 지역</span><br><span style="font-size:26px; font-weight:800; color:#111827;">{top_region}특별시</span></div>', unsafe_allow_html=True)
 
     # ---------------------------------------------------------
-    # SECTION 1: GEOSPATIAL MAP (지도 보라색 원)
+    # SECTION 1: GEOSPATIAL MAP (클러스터 연보라 / 개별핀 RGB)
     # ---------------------------------------------------------
     st.markdown("<h2 style='font-size:22px; font-weight:800; margin-bottom:6px; color:#111827;'>1. 대한민국 인프라 양극화 및 취약도 지형도</h2>", unsafe_allow_html=True)
     
@@ -145,17 +145,32 @@ if df_final is not None:
     
     with map_center_col:
         m_real = folium.Map(location=[36.2, 127.8], zoom_start=7, tiles='CartoDB positron')
-        m_real.get_root().header.add_child(folium.Element("<style>.leaflet-container { background: #FFFFFF !important; }</style>"))
+        
+        # 💡 [핵심] 숫자가 있는 원(클러스터)을 연보라색으로 강제 튜닝하는 CSS
+        cluster_css = """
+        <style>
+        .leaflet-container { background: #FFFFFF !important; }
+        .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
+            background-color: rgba(216, 180, 254, 0.6) !important; /* 바깥쪽 투명한 연보라 */
+        }
+        .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div {
+            background-color: rgba(168, 85, 247, 0.9) !important; /* 안쪽 진한 연보라 */
+            color: white !important; 
+            font-weight: 800 !important;
+        }
+        </style>
+        """
+        m_real.get_root().header.add_child(folium.Element(cluster_css))
         
         marker_cluster = MarkerCluster(disableClusteringAtZoom=13).add_to(m_real)
         
         for idx, row in df_final.sample(n=sample_size, random_state=42).iterrows():
-            # 💡 [지도 원 보라색 강제 적용]
-            marker_color = '#9333EA' 
+            # 💡 [핵심] 개별 학교 점은 RGB 색상(scatter_color_map) 적용
+            marker_color = scatter_color_map.get(row['유형_라벨'], '#6B7280') 
             
             html_content = f"""
             <div style='font-family: sans-serif; font-size: 13px; color:#111827; min-width:145px; line-height:1.5;'>
-                <strong style='font-size:14px; color:#111827;'>{row['학교코드명']}</strong><br>
+                <strong style='font-size:14px; color:{marker_color};'>{row['학교코드명']}</strong><br>
                 <hr style='margin:5px 0; border:0; border-top:1px solid #E5E7EB;'>
                 • 유형: {row['유형_라벨']}<br>
                 • 학생수: {int(row['학생수계'])}명
@@ -201,20 +216,19 @@ if df_final is not None:
         
     with chart_col2:
         # 💡 [HTML 버그 해결 & 올블랙 텍스트 & '-다' 문체]
-        # 줄바꿈 공백을 없애고 <div> 태그로만 묶어서 마크다운 파서 에러 방지
         st.markdown("""
         <div style="padding-left:18px; border-left:4px solid #111827; height:100%; color:#111827;">
             <div style="font-size:19px; font-weight:800; margin-bottom:18px; letter-spacing:-0.5px;">- 군집 알고리즘을 통한 학교 유형별 분류 -</div>
             <div style="font-size:15px; line-height:1.75; text-align:justify; margin-bottom:16px;">
-                <span style="font-weight:800; font-size:16px;">▶ A유형: 과밀 학교</span><br>
+                <span style="font-weight:800; font-size:16px; color:#EF4444;">▶ A유형: 과밀 학교</span><br>
                 신도시 및 대도시 중심지에 위치한 대형 학교군이다. 신도시 개발에 따른 지속적인 인구 유입으로 과대 학교 및 과밀 학급 문제가 심화되고 있다. 특히 수도권 등 특정 지역의 과밀 학급 문제가 심각하여 교사의 업무 부담이 가중되고 있으며, 학생 개개인에 대한 맞춤형 교육 제공에 한계가 존재한다. 교육의 질 저하를 방지하기 위해 교실 증축과 행정 보조인력의 즉각적인 지원이 시급하다.
             </div>
             <div style="font-size:15px; line-height:1.75; text-align:justify; margin-bottom:16px;">
-                <span style="font-weight:800; font-size:16px;">▶ B유형: 재정비 필요 학교</span><br>
+                <span style="font-weight:800; font-size:16px; color:#22C55E;">▶ B유형: 재정비 필요 학교</span><br>
                 지방 소도시 및 구도심에 위치한 중형 학교군이다. 현재는 학생과 교사 수가 적정 수준을 유지하고 있으나, 급격한 출산율 저하로 인해 학령인구 감소의 영향권에 진입하고 있다. 향후 학령인구 감소에 따른 유휴 학교 시설 발생이 주요 교육 및 사회적 문제로 대두될 전망이다. 따라서 남는 공간을 주민 도서관이나 돌봄 센터 등 지역 사회 활성화를 위한 공간으로 재구성하는 사전 공간 재편 전략이 필요하다.
             </div>
             <div style="font-size:15px; line-height:1.75; text-align:justify;">
-                <span style="font-weight:800; font-size:16px;">▶ C유형: 소멸위기 학교</span><br>
+                <span style="font-weight:800; font-size:16px; color:#3B82F6;">▶ C유형: 소멸위기 학교</span><br>
                 도서산간 및 농어촌 지역을 비롯해 최근 대도시 일부까지 확산 중인 소규모 학교군이다. 학령인구의 급격한 감소로 인해 정상적인 교과목 수업 개설이 어렵고, 예체능이나 동아리 활동 등 교육과정의 다양성이 부족하다. 이는 교육 환경의 질적 저하와 학생들의 공교육 혜택 소외로 이어지고 있으며, 학교 운영의 어려움을 넘어 지역 소멸 위기를 가속화하고 있다. 교육 격차 해소와 폐교 방지를 위한 지역 상생 정책 수립이 절실하다.
             </div>
         </div>
