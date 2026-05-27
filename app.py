@@ -106,11 +106,11 @@ df_final = load_final_data()
 
 if df_final is not None:
     # 전역 컬러 맵 구성 정의
-    color_map = {'A유형 (과밀/과부하)': '#EF4444', 'B유형 (재정비효율)': '#3B82F6', 'C유형 (소멸위기)': '#10B981'}
+    color_map = {'A유형 (과밀)': '#EF4444', 'B유형 (비효율)': '#3B82F6', 'C유형 (소멸위기)': '#10B981'}
 
     # BRANDING HERO SECTION (오민도 연구원님 정식 브랜딩)
     st.markdown('<p class="project-title">Project EduBridge AI</p>', unsafe_allow_html=True)
-    st.markdown('<p class="team-sub">오민도 (데이터기반 정책혁신 연구단 / Data-Driven Policy Innovation Lab)</p>', unsafe_allow_html=True)
+    st.markdown('<p class="team-sub">오민도</p>', unsafe_allow_html=True)
     
     # 상단 지표 카드 레이아웃
     m1, m2, m3 = st.columns(3)
@@ -187,26 +187,26 @@ if df_final is not None:
         st.pyplot(fig)
         
     with chart_col2:
-        st.markdown(f"""
-        <div style="padding-left:18px; border-left:4px solid #6366F1; height:100%;">
-            <p style="font-size:19px; font-weight:800; color:#111827; margin-bottom:14px; letter-spacing:-0.5px;">- AI가 분류한 대한민국 학교의 3가지 현실 성적표 -</p>
-            <p style="font-size:15.5px; line-height:1.75; color:#374151; text-align:justify;">
-                전국 학교의 학생 수와 교사 수를 인공지능으로 분석해보면, 행정구역(서울, 부산 등)의 경계와 무관하게 실제 학교가 처한 진짜 교육 여건에 따라 아래와 같이 <b>'3가지 체급'</b>으로 뚜렷하게 나뉩니다.
-            </p>
-            <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
-                <span style="font-weight:700; color:#EF4444;">- A유형 (과밀/과부하 학교)</span><br>
-                -> 학생 수가 너무 많아 교실이 터져 나가는 대형 학교들입니다. 주로 신도시나 대도시 중심지에 몰려 있습니다. 교사 한 명이 담당해야 할 학생이 너무 많아 교육의 질이 떨어질 우려가 크며, 교실 증축과 행정 보조인력 지원이 가장 시급한 곳입니다.
-            </p>
-            <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
-                <span style="font-weight:700; color:#3B82F6;">- B유형 (재정비 효율화 학교)</span><br>
-                -> 학생 수도 적당하고 교사 수도 유지되고 있는 평범한 중형 학교들입니다. 지방 소도시나 오래된 원도심에 많습니다. 다만 인구가 점점 줄어들고 있어, 앞으로 남는 교실이나 시설을 지역 주민 도서관이나 돌봄 센터로 리모델링하는 등 공간 재편이 필요한 곳입니다.
-            </p>
-            <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
-                <span style="font-weight:700; color:#10B981;">- C유형 (소멸위기 고립 학교)</span><br>
-                -> 전교생이 너무 적어 문을 닫을 위기에 처한 미니 학교들입니다. 도서산간이나 시골 지역에 많습니다. 학생이 없다 보니 정상적인 교과목 수업 개설조차 어려워 아이들이 공교육의 혜택을 받지 못하고 있으며, 폐교를 막기 위한 상생 정책이 절실한 곳입니다.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style="padding-left:18px; border-left:4px solid #6366F1; height:100%;">
+        <p style="font-size:19px; font-weight:800; color:#111827; margin-bottom:18px; letter-spacing:-0.5px;">- 군집 알고리즘을 통한 학교 유형별 분류 -</p>
+        
+        <p style="font-size:15px; line-height:1.75; color:#374151; text-align:justify; margin-bottom:16px;">
+            <span style="font-weight:700; color:#EF4444; font-size:16px;">▶ A유형: 과밀 학교</span><br>
+            신도시 및 대도시 중심지에 위치한 대형 학교군이다. 신도시 개발에 따른 지속적인 인구 유입으로 과대 학교 및 과밀 학급 문제가 심화되고 있다. 특히 수도권 등 특정 지역의 과밀 학급 문제가 심각하여 교사의 업무 부담이 가중되고 있으며, 학생 개개인에 대한 맞춤형 교육 제공에 한계가 존재한다. 교육의 질 저하를 방지하기 위해 교실 증축과 행정 보조인력의 즉각적인 지원이 시급하다.
+        </p>
+        
+        <p style="font-size:15px; line-height:1.75; color:#374151; text-align:justify; margin-bottom:16px;">
+            <span style="font-weight:700; color:#3B82F6; font-size:16px;">▶ B유형: 재정비 필요 학교</span><br>
+            지방 소도시 및 구도심에 위치한 중형 학교군이다. 현재는 학생과 교사 수가 적정 수준을 유지하고 있으나, 급격한 출산율 저하로 인해 학령인구 감소의 영향권에 진입하고 있다. 향후 학령인구 감소에 따른 유휴 학교 시설 발생이 주요 교육 및 사회적 문제로 대두될 전망이다. 따라서 남는 공간을 주민 도서관이나 돌봄 센터 등 지역 사회 활성화를 위한 공간으로 재구성하는 사전 공간 재편 전략이 필요하다.
+        </p>
+        
+        <p style="font-size:15px; line-height:1.75; color:#374151; text-align:justify;">
+            <span style="font-weight:700; color:#10B981; font-size:16px;">▶ C유형: 소멸위기 학교</span><br>
+            도서산간 및 농어촌 지역을 비롯해 최근 대도시 일부까지 확산 중인 소규모 학교군이다. 학령인구의 급격한 감소로 인해 정상적인 교과목 수업 개설이 어렵고, 예체능이나 동아리 활동 등 교육과정의 다양성이 부족하다. 이는 교육 환경의 질적 저하와 학생들의 공교육 혜택 소외로 이어지고 있으며, 학교 운영의 어려움을 넘어 지역 소멸 위기를 가속화하고 있다. 교육 격차 해소와 폐교 방지를 위한 지역 상생 정책 수립이 절실하다.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     # 연도별 미래 예측 시뮬레이션 인터랙티브 존
