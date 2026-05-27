@@ -14,10 +14,10 @@ from sklearn.linear_model import LinearRegression
 # 1. 페이지 레이아웃 및 테마 최적화
 st.set_page_config(page_title="Project EduBridge AI", layout="wide", initial_sidebar_state="collapsed")
 
-# CSS 주입: 올블랙 텍스트 + 타이틀 크기 확대 + 슬라이더 정밀 튜닝
+# CSS 주입: 올블랙 텍스트 + 타이틀 크기 확대 + 슬라이더(숫자/선/점) 정밀 튜닝
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
     
     html, body, [data-testid="stAppViewContainer"] {
         font-family: 'Plus Jakarta Sans', 'Malgun Gothic', sans-serif !important;
@@ -40,11 +40,12 @@ st.markdown("""
         box-shadow: 0 0 0 0.2rem rgba(147, 51, 234, 0.25) !important;
     }
     
+    /* 슬라이더 위 숫자 및 라벨 텍스트: 강제 검은색 지정 */
     div[data-testid="stThumbValue"], 
     div[data-testid="stThumbValue"] > div, 
     div[data-testid="stThumbValue"] > span,
     .stSlider label {
-        color: #111827 !important; /* 글자는 검은색 */
+        color: #111827 !important; /* 검은색 */
         font-weight: 700 !important;
     }
     
@@ -62,6 +63,7 @@ st.markdown("""
         margin-bottom: 24px;
     }
     
+    /* 타이틀 및 이름 크기 대폭 확대 */
     .project-title {
         font-size: 58px; 
         font-weight: 800;
@@ -146,13 +148,14 @@ if df_final is not None:
     # SECTION 1: MAP
     st.markdown("<h2 style='font-size:22px; font-weight:800; margin-bottom:6px; color:#111827;'>1. 대한민국 인프라 양극화 및 취약도 지형도</h2>", unsafe_allow_html=True)
     
+    # 지도 컨트롤러
     sample_size = st.slider("지도 시각화 학교 수 조절 (컨트롤러)", min_value=500, max_value=min(10000, len(df_final)), value=3000, step=500)
     
     _, map_center_col, _ = st.columns([1, 10, 1])
     with map_center_col:
         m_real = folium.Map(location=[36.2, 127.8], zoom_start=7, tiles='CartoDB positron')
         
-        # 💡 [핵심] 자바스크립트 엔진 주입: 원 안에 포함된 학교들의 색상을 카운트해서, 가장 많은 유형의 색(RGB)으로 원을 칠합니다.
+        # 지도 클러스터 다수결 매핑 및 폰트 두께 슬림화 엔진
         icon_create_function = """
         function(cluster) {
             var markers = cluster.getAllChildMarkers();
@@ -163,7 +166,6 @@ if df_final is not None:
                     counts[color]++;
                 }
             }
-            // 다수결 색상 찾기
             var majorityColor = '#6B7280';
             var maxCount = -1;
             for (var color in counts) {
@@ -172,25 +174,20 @@ if df_final is not None:
                     majorityColor = color;
                 }
             }
-            
-            // 다수결 색상에 맞춘 배경색(연하게)과 테두리색(진하게)
             var bgColors = {
-                '#EF4444': 'rgba(239, 68, 68, 0.4)', // 연한 빨강
-                '#22C55E': 'rgba(34, 197, 94, 0.4)', // 연한 초록
-                '#3B82F6': 'rgba(59, 130, 246, 0.4)', // 연한 파랑
-                '#6B7280': 'rgba(107, 114, 128, 0.4)'  // 연한 회색
+                '#EF4444': 'rgba(239, 68, 68, 0.4)', 
+                '#22C55E': 'rgba(34, 197, 94, 0.4)', 
+                '#3B82F6': 'rgba(59, 130, 246, 0.4)', 
+                '#6B7280': 'rgba(107, 114, 128, 0.4)'  
             };
             var innerColors = {
-                '#EF4444': 'rgba(239, 68, 68, 0.9)', // 진한 빨강
-                '#22C55E': 'rgba(34, 197, 94, 0.9)', // 진한 초록
-                '#3B82F6': 'rgba(59, 130, 246, 0.9)', // 진한 파랑
-                '#6B7280': 'rgba(107, 114, 128, 0.9)'  // 진한 회색
+                '#EF4444': 'rgba(239, 68, 68, 0.9)', 
+                '#22C55E': 'rgba(34, 197, 94, 0.9)', 
+                '#3B82F6': 'rgba(59, 130, 246, 0.9)', 
+                '#6B7280': 'rgba(107, 114, 128, 0.9)'  
             };
-            
             var bgColor = bgColors[majorityColor];
             var innerColor = innerColors[majorityColor];
-            
-            // HTML 동적 생성 (글자는 얇게 font-weight:400)
             return L.divIcon({
                 html: '<div style="background-color:' + bgColor + '; border-radius:50%; width:40px; height:40px; display:flex; justify-content:center; align-items:center;"><div style="background-color:' + innerColor + '; color:white; border-radius:50%; width:30px; height:30px; display:flex; justify-content:center; align-items:center; font-weight:400; font-size:14px;">' + cluster.getChildCount() + '</div></div>',
                 className: '',
@@ -199,14 +196,14 @@ if df_final is not None:
         }
         """
         
-        # 생성한 JS 함수를 MarkerCluster에 적용
         marker_cluster = MarkerCluster(icon_create_function=icon_create_function).add_to(m_real)
-        
         for idx, row in df_final.sample(n=sample_size, random_state=42).iterrows():
             marker_color = scatter_color_map.get(row['유형_라벨'], '#6B7280')
             html_content = f"<div style='font-size:13px; color:#111827;'><strong>{row['학교코드명']}</strong><br>• 유형: {row['유형_라벨']}<br>• 학생수: {int(row['학생수계'])}명</div>"
             folium.CircleMarker(location=[row['위도'], row['경도']], radius=5.5, color=marker_color, fill=True, fill_color=marker_color, fill_opacity=0.75, weight=1, tooltip=folium.Tooltip(html_content)).add_to(marker_cluster)
         st_folium(m_real, height=560, use_container_width=True, returned_objects=[])
+
+    st.markdown("<div style='margin-bottom:40px;'></div>", unsafe_allow_html=True)
 
     # SECTION 2: AI Cluster & Prediction
     st.markdown("<h2 style='font-size:22px; font-weight:800; margin-top:40px; margin-bottom:14px; color:#111827;'>2. 머신러닝 분석 및 미래 여건 예측 스튜디오</h2>", unsafe_allow_html=True)
@@ -249,8 +246,9 @@ if df_final is not None:
     # FUTURE PREDICTION SECTION
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
     st.markdown("<p style='font-size:18px; font-weight:800; color:#111827; margin-bottom:2px;'>- 학령인구 감소에 따른 미래 교육 여건 예측 -</p>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#111827; font-size:14px; margin-bottom:20px;'>정부의 교원 임용 축소 정책 유무에 따른 교원 1인당 학생 수 예측 시뮬레이터</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#111827; font-size:14px; margin-bottom:20px;'>정부의 교원 임용 축소 정책 유무에 따른 교원 1인당 학생 수 예측</p>", unsafe_allow_html=True)
     
+    # 예측 목표 연도 컨트롤러 (선과 점 보라색 적용)
     target_year = st.slider("예측 목표 연도를 설정하세요.", min_value=2025, max_value=2030, value=2030, step=1)
     
     # Regression Data
@@ -298,4 +296,11 @@ if df_final is not None:
             </div>
         </div>
         """, unsafe_allow_html=True)
+    
+    # 💡 [문구 추가 영역] 학술적 신뢰도를 위한 논문/출처 마크다운 배치
+    st.markdown("""
+        <div style="margin-top: 25px; padding-top: 14px; border-top: 1px dashed #E5E7EB; color: #6B7280; font-size: 13px;">
+            <span style="font-weight: 700; color: #9333EA;">※ 출처 및 이론적 배경 :</span> 본 미래 교육 여건 예측의 프레임워크와 '평균의 함정' 분석 구조는 <b>한국노동사회연구소</b>의 <i>『저출생시대 교원수급계획 개선방향』</i> 및 <b>국회예산정책처</b>의 <i>『지방교육재정 운용 분석』</i> 실증 통계 지표를 이론적 근거로 수립되었다.
+        </div>
+    """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
