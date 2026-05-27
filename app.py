@@ -14,7 +14,7 @@ from sklearn.linear_model import LinearRegression
 # 1. 페이지 레이아웃 및 테마 최적화
 st.set_page_config(page_title="Project EduBridge AI", layout="wide", initial_sidebar_state="collapsed")
 
-# CSS 주입: 올블랙 텍스트 + 두 개의 슬라이더 보라색(#9333EA) 강제 튜닝
+# CSS 주입: 올블랙 텍스트 + 타이틀 크기 확대 + 슬라이더 선 보라색 강제 튜닝
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -30,18 +30,18 @@ st.markdown("""
         backdrop-filter: blur(8px) !important;
     }
 
-    /* 💡 2개의 슬라이더(컨트롤러) 완벽한 보라색 적용 */
-    .stSlider > div[data-baseweb="slider"] > div > div > div[role="slider"] {
-        background-color: #9333EA !important;
-        border: 2px solid #9333EA !important;
-        box-shadow: 0 0 0 0.2rem rgba(147, 51, 234, 0.25) !important;
-    }
-    .stSlider > div[data-baseweb="slider"] div[data-testid="stTickBar"] > div {
+    /* 💡 슬라이더(컨트롤러) '선과 손잡이' 보라색 튜닝 / 글자는 검은색 */
+    .stSlider > div[data-baseweb="slider"] > div > div > div {
         background-color: #9333EA !important;
     }
-    div[data-testid="stThumbValue"], .stSlider label {
-        color: #9333EA !important;
-        font-weight: 700 !important;
+    .stSlider > div[data-baseweb="slider"] [role="slider"] {
+        background-color: #9333EA !important;
+        border: none !important;
+        box-shadow: 0 0 0 0.2rem rgba(147, 51, 234, 0.2) !important;
+    }
+    .stSlider label, div[data-testid="stThumbValue"] {
+        color: #111827 !important; /* 글자는 검은색으로 통일 */
+        font-weight: 600 !important;
     }
     
     iframe {
@@ -58,8 +58,9 @@ st.markdown("""
         margin-bottom: 24px;
     }
     
+    /* 💡 타이틀 및 이름 크기 대폭 확대 */
     .project-title {
-        font-size: 46px;
+        font-size: 58px; /* 기존 46px -> 58px 확대 */
         font-weight: 800;
         letter-spacing: -1.5px;
         color: #111827;
@@ -68,13 +69,13 @@ st.markdown("""
     }
     
     .team-sub {
-        font-size: 16px;
+        font-size: 24px; /* 기존 16px -> 24px 확대 */
         font-weight: 600;
         color: #111827;
         letter-spacing: 0.5px;
         text-transform: uppercase;
-        margin-top: 2px;
-        margin-bottom: 35px;
+        margin-top: 5px;
+        margin-bottom: 40px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -142,16 +143,23 @@ if df_final is not None:
     # SECTION 1: MAP
     st.markdown("<h2 style='font-size:22px; font-weight:800; margin-bottom:6px; color:#111827;'>1. 대한민국 인프라 양극화 및 취약도 지형도</h2>", unsafe_allow_html=True)
     
-    # 지도 시각화 컨트롤러
+    # 💡 지도 컨트롤러
     sample_size = st.slider("지도 시각화 학교 수 조절 (컨트롤러)", min_value=500, max_value=min(10000, len(df_final)), value=3000, step=500)
     
     _, map_center_col, _ = st.columns([1, 10, 1])
     with map_center_col:
         m_real = folium.Map(location=[36.2, 127.8], zoom_start=7, tiles='CartoDB positron')
+        
+        # 💡 [지도 숫자 얇게 튜닝] font-weight를 800에서 400(normal)으로 변경
         cluster_css = """
         <style>
         .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large { background-color: rgba(216, 180, 254, 0.6) !important; }
-        .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div { background-color: rgba(168, 85, 247, 0.9) !important; color: white !important; font-weight: 800 !important; }
+        .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div { 
+            background-color: rgba(168, 85, 247, 0.9) !important; 
+            color: white !important; 
+            font-weight: 400 !important; /* 숫자를 얇게 */
+            font-size: 14px !important;
+        }
         </style>
         """
         m_real.get_root().header.add_child(folium.Element(cluster_css))
@@ -200,12 +208,12 @@ if df_final is not None:
         """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # 💡 FUTURE PREDICTION SECTION
+    # FUTURE PREDICTION SECTION
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
     st.markdown("<p style='font-size:18px; font-weight:800; color:#111827; margin-bottom:2px;'>- 학령인구 감소에 따른 미래 교육 여건 예측 -</p>", unsafe_allow_html=True)
     st.markdown("<p style='color:#111827; font-size:14px; margin-bottom:20px;'>정부의 교원 임용 축소 정책 유무에 따른 교원 1인당 학생 수 예측 시뮬레이터</p>", unsafe_allow_html=True)
     
-    # 예측 목표 연도 컨트롤러
+    # 💡 예측 목표 연도 컨트롤러
     target_year = st.slider("예측 목표 연도를 설정하세요.", min_value=2025, max_value=2030, value=2030, step=1)
     
     # Regression Data
@@ -224,7 +232,6 @@ if df_final is not None:
         fig_p, ax_p = plt.subplots(figsize=(7.5, 4.6), facecolor='white')
         ax_p.plot(hist_years, hist_ratio, marker='o', color='#8B5CF6', linewidth=2.5, label='실제 추이 (2017-2024)')
         if len(future_years) > 0:
-            # 범례 수정
             ax_p.plot(future_years, pred_trend, linestyle='--', marker='s', color='#C084FC', linewidth=1.8, label='현재 추세 연장 가정')
             ax_p.plot(future_years, pred_bottleneck, linestyle='--', marker='^', color='#9333EA', linewidth=2.2, label='현실적 정책 반영선')
             
@@ -238,12 +245,12 @@ if df_final is not None:
         st.pyplot(fig_p)
         
     with p2:
-        # 💡 연도와 수치가 슬라이더에 따라 바뀌도록 f-string 내부에 변수 적용
+        # 💡 '평균의 함정' 따옴표 제거 및 글자는 검은색 유지 (포인트 컬러 보라색)
         st.markdown(f"""
         <div style="padding-left:18px; border-left:4px solid #111827; height:100%; color:#111827;">
             <div style="font-size:19px; font-weight:800; margin-bottom:14px;">- 미래 교육 환경 예측 -</div>
             <div style="font-size:15px; line-height:1.75; text-align:justify;">
-                대한민국의 합계출산율은 2023년 0.72명으로 역사상 최저 수준을 기록했다. 흔히 사람들은 "아이들이 줄어드니까 교사 한 명당 돌보는 학생 수도 줄어들고, 교육 여건이 저절로 좋아지겠지?"라고 생각한다. 하지만 이는 전체 평균의 숫자에 속는 <b style="color:#9333EA;">'평균의 함정'</b>이다. 인공지능 예측 결과는 정부 정책에 따라 바뀔 수 있음을 보여준다.
+                대한민국의 합계출산율은 2023년 0.72명으로 역사상 최저 수준을 기록했다. 흔히 사람들은 "아이들이 줄어드니까 교사 한 명당 돌보는 학생 수도 줄어들고, 교육 여건이 저절로 좋아지겠지?"라고 생각한다. 하지만 이는 전체 평균의 숫자에 속는 <b style="color:#9333EA;">평균의 함정</b>이다. 인공지능 예측 결과는 정부 정책에 따라 바뀔 수 있음을 보여준다.
             </div>
             <div style="font-size:15px; line-height:1.75; margin-top:14px;">
                 <span style="font-weight:800;">- 현재 추세 연장 가정 (연보라 점선)</span><br>
