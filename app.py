@@ -131,7 +131,7 @@ if df_final is not None:
         else: scatter_color_map[label] = '#6B7280'
 
     # HERO SECTION
-    st.markdown('<p class="project-title">Project EduBridge AI</p>', unsafe_allow_html=True)
+    st.markdown('<p class="project-title">교감선생님(교원 감소를 막기 위해 선생님을 늘리자)</p>', unsafe_allow_html=True)
     st.markdown('<p class="team-sub">오민도</p>', unsafe_allow_html=True)
     
     # KPI Cards
