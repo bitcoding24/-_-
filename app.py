@@ -105,19 +105,20 @@ def load_final_data():
 df_final = load_final_data()
 
 if df_final is not None:
-    # 💡 [에러 원천 차단] 데이터에 적힌 글자가 달라도 A, B, C를 포함하면 자동으로 색상을 매핑합니다.
+    # 💡 [색상 대비 극대화 및 에러 원천 차단] 
+    # 데이터에 A, B, C가 포함되어 있으면 가독성 높은 색상을 자동으로 매핑합니다.
     unique_labels = df_final['유형_라벨'].unique()
     color_map = {}
     for label in unique_labels:
         label_str = str(label)
         if 'A' in label_str:
-            color_map[label] = '#7E22CE' # 짙은 퍼플 (과밀)
+            color_map[label] = '#5B21B6' # 다크 바이올렛 (A유형 - 과밀)
         elif 'B' in label_str:
-            color_map[label] = '#A855F7' # 미디엄 라벤더 (재정비)
+            color_map[label] = '#EC4899' # 마젠타 핑크 (B유형 - 확실한 구분)
         elif 'C' in label_str:
-            color_map[label] = '#D8B4FE' # 라이트 연보라 (소멸위기)
+            color_map[label] = '#3B82F6' # 코발트 블루 (C유형 - 확실한 구분)
         else:
-            color_map[label] = '#E9D5FF' # 기본값 (매우 연한 라벤더)
+            color_map[label] = '#D8B4FE' # 기본값 (연보라)
 
     # BRANDING HERO SECTION
     st.markdown('<p class="project-title">Project EduBridge AI</p>', unsafe_allow_html=True)
@@ -187,7 +188,7 @@ if df_final is not None:
     
     with chart_col1:
         fig, ax = plt.subplots(figsize=(7.5, 4.8), facecolor='white')
-        sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=color_map, alpha=0.5, s=35, ax=ax, edgecolor='none')
+        sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=color_map, alpha=0.6, s=35, ax=ax, edgecolor='none')
         ax.set_facecolor('#FFFFFF')
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
@@ -203,18 +204,18 @@ if df_final is not None:
         <div style="padding-left:18px; border-left:4px solid #A855F7; height:100%;">
             <p style="font-size:19px; font-weight:800; color:#4C1D95; margin-bottom:18px; letter-spacing:-0.5px;">- 군집 알고리즘을 통한 학교 유형별 분류 -</p>
             
-            <p style="font-size:15px; line-height:1.75; color:#374151; text-align:justify; margin-bottom:16px;">
-                <span style="font-weight:700; color:#7E22CE; font-size:16px;">▶ A유형: 과밀 학교</span><br>
+            <p style="font-size:15px; line-height:1.75; color:#7E6E93; text-align:justify; margin-bottom:16px;">
+                <span style="font-weight:700; color:#5B21B6; font-size:16px;">▶ A유형: 과밀 학교</span><br>
                 신도시 및 대도시 중심지에 위치한 대형 학교군이다. 신도시 개발에 따른 지속적인 인구 유입으로 과대 학교 및 과밀 학급 문제가 심화되고 있다. 특히 수도권 등 특정 지역의 과밀 학급 문제가 심각하여 교사의 업무 부담이 가중되고 있으며, 학생 개개인에 대한 맞춤형 교육 제공에 한계가 존재한다. 교육의 질 저하를 방지하기 위해 교실 증축과 행정 보조인력의 즉각적인 지원이 시급하다.
             </p>
             
-            <p style="font-size:15px; line-height:1.75; color:#374151; text-align:justify; margin-bottom:16px;">
-                <span style="font-weight:700; color:#A855F7; font-size:16px;">▶ B유형: 재정비 필요 학교</span><br>
+            <p style="font-size:15px; line-height:1.75; color:#7E6E93; text-align:justify; margin-bottom:16px;">
+                <span style="font-weight:700; color:#EC4899; font-size:16px;">▶ B유형: 재정비 필요 학교</span><br>
                 지방 소도시 및 구도심에 위치한 중형 학교군이다. 현재는 학생과 교사 수가 적정 수준을 유지하고 있으나, 급격한 출산율 저하로 인해 학령인구 감소의 영향권에 진입하고 있다. 향후 학령인구 감소에 따른 유휴 학교 시설 발생이 주요 교육 및 사회적 문제로 대두될 전망이다. 따라서 남는 공간을 주민 도서관이나 돌봄 센터 등 지역 사회 활성화를 위한 공간으로 재구성하는 사전 공간 재편 전략이 필요하다.
             </p>
             
-            <p style="font-size:15px; line-height:1.75; color:#374151; text-align:justify;">
-                <span style="font-weight:700; color:#C084FC; font-size:16px;">▶ C유형: 소멸위기 학교</span><br>
+            <p style="font-size:15px; line-height:1.75; color:#7E6E93; text-align:justify;">
+                <span style="font-weight:700; color:#3B82F6; font-size:16px;">▶ C유형: 소멸위기 학교</span><br>
                 도서산간 및 농어촌 지역을 비롯해 최근 대도시 일부까지 확산 중인 소규모 학교군이다. 학령인구의 급격한 감소로 인해 정상적인 교과목 수업 개설이 어렵고, 예체능이나 동아리 활동 등 교육과정의 다양성이 부족하다. 이는 교육 환경의 질적 저하와 학생들의 공교육 혜택 소외로 이어지고 있으며, 학교 운영의 어려움을 넘어 지역 소멸 위기를 가속화하고 있다. 교육 격차 해소와 폐교 방지를 위한 지역 상생 정책 수립이 절실하다.
             </p>
         </div>
@@ -270,14 +271,14 @@ if df_final is not None:
         st.markdown(f"""
         <div style="padding-left:18px; border-left:4px solid #A855F7; height:100%;">
             <p style="font-size:19px; font-weight:800; color:#4C1D95; margin-bottom:14px; letter-spacing:-0.5px;">- 미래 교육 환경 예측: 낙관론과 냉정한 현실 -</p>
-            <p style="font-size:15.5px; line-height:1.75; color:#374151; text-align:justify;">
+            <p style="font-size:15.5px; line-height:1.75; color:#7E6E93; text-align:justify;">
                 대한민국의 합계출산율은 2022년 0.78명으로 역사상 최저 수준을 기록했습니다. 흔히 사람들은 "아이들이 줄어드니까 교사 한 명당 돌보는 학생 수도 줄어들고, 교육 여건이 저절로 좋아지겠지?"라고 생각합니다. 하지만 이는 전체 평균의 숫자에 속는 <b>'평균의 함정'</b>입니다. 인공지능 예측 결과는 정부 정책에 따라 미래가 완전히 달라질 수 있음을 경고합니다.
             </p>
-            <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
+            <p style="font-size:15.5px; line-height:1.75; color:#7E6E93; margin-top:14px;">
                 <span style="font-weight:700; color:#9CA3AF;">- 단순 추세 연장 가설 (연보라 점선)</span><br>
                 -> 과거 데이터 흐름 그대로 "학생만 줄어들고 교사 수는 지금처럼 유지된다"고 기계적으로 계산한 선입니다. {target_year}년이 되면 교원 1인당 학생 수가 <b>{pred_trend[-1]:.2f}명</b>까지 떨어져 교육 여건이 엄청나게 좋아지는 것처럼 보입니다. 하지만 이는 현실성이 낮은 통계적 착시일 뿐입니다.
             </p>
-            <p style="font-size:15.5px; line-height:1.75; color:#374151; margin-top:14px;">
+            <p style="font-size:15.5px; line-height:1.75; color:#7E6E93; margin-top:14px;">
                 <span style="font-weight:700; color:#9333EA;">- 현실적 정책 리스크 반영선 (진보라 점선)</span><br>
                 -> "학생이 줄어드니 나라에서 교사 임용도 같이 줄여버린다(임용 절벽)"는 실제 정부의 정원 감축 정책 리스크를 반영한 선입니다. 학생 감소 속도에 맞춰 교사 공급마저 끊겨버리면, {target_year}년 수치는 더 이상 개선되지 못하고 <b>{pred_bottleneck[-1]:.2f}명</b> 선에서 딱 멈추는 병목 현상(Bottleneck)이 발생합니다. 평균의 환상에 속아 교사 공급을 일괄 감축하면 실질적인 교육 환경 개선은 완전히 마비됩니다.
             </p>
