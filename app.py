@@ -187,27 +187,27 @@ if df_final is not None:
         st.pyplot(fig)
         
     with chart_col2:
-    st.markdown(f"""
-    <div style="padding-left:18px; border-left:4px solid #6366F1; height:100%;">
-        <p style="font-size:19px; font-weight:800; color:#111827; margin-bottom:18px; letter-spacing:-0.5px;">- 군집 알고리즘을 통한 학교 유형별 분류 -</p>
+        st.markdown(f"""
+        <div style="padding-left:18px; border-left:4px solid #6366F1; height:100%;">
+            <p style="font-size:19px; font-weight:800; color:#111827; margin-bottom:18px; letter-spacing:-0.5px;">- 군집 알고리즘을 통한 학교 유형별 분류 -</p>
         
-        <p style="font-size:15px; line-height:1.75; color:#374151; text-align:justify; margin-bottom:16px;">
-            <span style="font-weight:700; color:#EF4444; font-size:16px;">▶ A유형: 과밀 학교</span><br>
-            신도시 및 대도시 중심지에 위치한 대형 학교군이다. 신도시 개발에 따른 지속적인 인구 유입으로 과대 학교 및 과밀 학급 문제가 심화되고 있다. 특히 수도권 등 특정 지역의 과밀 학급 문제가 심각하여 교사의 업무 부담이 가중되고 있으며, 학생 개개인에 대한 맞춤형 교육 제공에 한계가 존재한다. 교육의 질 저하를 방지하기 위해 교실 증축과 행정 보조인력의 즉각적인 지원이 시급하다.
-        </p>
+            <p style="font-size:15px; line-height:1.75; color:#374151; text-align:justify; margin-bottom:16px;">
+                <span style="font-weight:700; color:#EF4444; font-size:16px;">▶ A유형: 과밀 학교</span><br>
+                신도시 및 대도시 중심지에 위치한 대형 학교군이다. 신도시 개발에 따른 지속적인 인구 유입으로 과대 학교 및 과밀 학급 문제가 심화되고 있다. 특히 수도권 등 특정 지역의 과밀 학급 문제가 심각하여 교사의 업무 부담이 가중되고 있으며, 학생 개개인에 대한 맞춤형 교육 제공에 한계가 존재한다. 교육의 질 저하를 방지하기 위해 교실 증축과 행정 보조인력의 즉각적인 지원이 시급하다.
+            </p>
         
-        <p style="font-size:15px; line-height:1.75; color:#374151; text-align:justify; margin-bottom:16px;">
-            <span style="font-weight:700; color:#3B82F6; font-size:16px;">▶ B유형: 재정비 필요 학교</span><br>
-            지방 소도시 및 구도심에 위치한 중형 학교군이다. 현재는 학생과 교사 수가 적정 수준을 유지하고 있으나, 급격한 출산율 저하로 인해 학령인구 감소의 영향권에 진입하고 있다. 향후 학령인구 감소에 따른 유휴 학교 시설 발생이 주요 교육 및 사회적 문제로 대두될 전망이다. 따라서 남는 공간을 주민 도서관이나 돌봄 센터 등 지역 사회 활성화를 위한 공간으로 재구성하는 사전 공간 재편 전략이 필요하다.
-        </p>
+            <p style="font-size:15px; line-height:1.75; color:#374151; text-align:justify; margin-bottom:16px;">
+                <span style="font-weight:700; color:#3B82F6; font-size:16px;">▶ B유형: 재정비 필요 학교</span><br>
+                지방 소도시 및 구도심에 위치한 중형 학교군이다. 현재는 학생과 교사 수가 적정 수준을 유지하고 있으나, 급격한 출산율 저하로 인해 학령인구 감소의 영향권에 진입하고 있다. 향후 학령인구 감소에 따른 유휴 학교 시설 발생이 주요 교육 및 사회적 문제로 대두될 전망이다. 따라서 남는 공간을 주민 도서관이나 돌봄 센터 등 지역 사회 활성화를 위한 공간으로 재구성하는 사전 공간 재편 전략이 필요하다.
+            </p>
         
-        <p style="font-size:15px; line-height:1.75; color:#374151; text-align:justify;">
-            <span style="font-weight:700; color:#10B981; font-size:16px;">▶ C유형: 소멸위기 학교</span><br>
-            도서산간 및 농어촌 지역을 비롯해 최근 대도시 일부까지 확산 중인 소규모 학교군이다. 학령인구의 급격한 감소로 인해 정상적인 교과목 수업 개설이 어렵고, 예체능이나 동아리 활동 등 교육과정의 다양성이 부족하다. 이는 교육 환경의 질적 저하와 학생들의 공교육 혜택 소외로 이어지고 있으며, 학교 운영의 어려움을 넘어 지역 소멸 위기를 가속화하고 있다. 교육 격차 해소와 폐교 방지를 위한 지역 상생 정책 수립이 절실하다.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+            <p style="font-size:15px; line-height:1.75; color:#374151; text-align:justify;">
+                <span style="font-weight:700; color:#10B981; font-size:16px;">▶ C유형: 소멸위기 학교</span><br>
+                도서산간 및 농어촌 지역을 비롯해 최근 대도시 일부까지 확산 중인 소규모 학교군이다. 학령인구의 급격한 감소로 인해 정상적인 교과목 수업 개설이 어렵고, 예체능이나 동아리 활동 등 교육과정의 다양성이 부족하다. 이는 교육 환경의 질적 저하와 학생들의 공교육 혜택 소외로 이어지고 있으며, 학교 운영의 어려움을 넘어 지역 소멸 위기를 가속화하고 있다. 교육 격차 해소와 폐교 방지를 위한 지역 상생 정책 수립이 절실하다.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # 연도별 미래 예측 시뮬레이션 인터랙티브 존
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
