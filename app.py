@@ -190,12 +190,12 @@ if df_final is not None:
 
     st.markdown('<p class="project-title">교.감.선생님.</p>', unsafe_allow_html=True)
     st.markdown('<p class="project-subtitle">교원 감소를 막기 위해 선생님을 늘리자!</p>', unsafe_allow_html=True)
-    st.markdown('<p class="team-sub">분석 및 기획 : 오민도</p>', unsafe_allow_html=True)
+    st.markdown('<p class="team-sub">팀명 : 오민도</p>', unsafe_allow_html=True)
     
     k1, k2, k3 = st.columns(3)
     k1.markdown(f'<div class="bento-card" style="text-align:center; margin-top:0;"><span style="color:#6B7280; font-size:14px; font-weight:700;">분석 대상 학교</span><br><span style="font-size:32px; font-weight:900; color:#111827;">{len(df_final):,} 개교</span></div>', unsafe_allow_html=True)
     k2.markdown(f'<div class="bento-card" style="text-align:center; margin-top:0;"><span style="color:#6B7280; font-size:14px; font-weight:700;">전국 평균 교사 1인당 학생 수</span><br><span style="font-size:32px; font-weight:900; color:#9333EA;">{avg_ratio} 명</span></div>', unsafe_allow_html=True)
-    k3.markdown(f'<div class="bento-card" style="text-align:center; margin-top:0;"><span style="color:#6B7280; font-size:14px; font-weight:700;">핵심 전략 지역</span><br><span style="font-size:32px; font-weight:900; color:#111827;">전국 소외 지역</span></div>', unsafe_allow_html=True)
+    k3.markdown(f'<div class="bento-card" style="text-align:center; margin-top:0;"><span style="color:#6B7280; font-size:14px; font-weight:700;">주요 분석 지역</span><br><span style="font-size:32px; font-weight:900; color:#111827;">전국 소외 지역</span></div>', unsafe_allow_html=True)
 
     # ------------------------------------------
     # 1. 지도 엔진
