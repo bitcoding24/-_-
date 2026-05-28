@@ -233,11 +233,11 @@ if df_final is not None:
             region_text = f"{top_region}" if "시" in str(top_region) or "도" in str(top_region) else f"{top_region}특별시"
         else:
             region_text = "서울특별시"
-        st.markdown(f'<div class="bento-card"><span style="color:#6B7280; font-size:14px; font-weight:700;">최고 인프라 집중 핵심 지역</span><br><span style="font-size:30px; font-weight:900; color:#111827;">{region_text}</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="bento-card"><span style="color:#6B7280; font-size:14px; font-weight:700;">점수 합이 가장 높은 지역</span><br><span style="font-size:30px; font-weight:900; color:#111827;">{region_text}</span></div>', unsafe_allow_html=True)
 
     # SECTION 1: 지형도 엔진
-    st.markdown("<h2 style='font-size:24px; font-weight:900; margin-bottom:8px; color:#111827;'>1. 대한민국 인프라 양극화 지형도 (Folium Spatial Engine)</h2>", unsafe_allow_html=True)
-    sample_size = st.slider("지도 시각화 최적 학교 수 조절 컨트롤러", min_value=500, max_value=min(10000, len(df_final)), value=2500, step=500)
+    st.markdown("<h2 style='font-size:24px; font-weight:900; margin-bottom:8px; color:#111827;'대한민국 학교 유형별 분류 지도", unsafe_allow_html=True)
+    sample_size = st.slider("지도 시각화 학교수 조절하세용", min_value=500, max_value=min(10000, len(df_final)), value=2500, step=500)
     
     _, map_center_col, _ = st.columns([1, 12, 1])
     with map_center_col:
@@ -283,7 +283,7 @@ if df_final is not None:
         st_folium(m_real, height=500, use_container_width=True, returned_objects=[])
 
     # SECTION 2: 원본 데이터 기반 사분면 매트릭스 분석실 (텍스트 옵션 통일 단계)
-    st.markdown("<h2 style='font-size:24px; font-weight:900; margin-top:45px; margin-bottom:14px; color:#111827;'>2. 인프라·교통 매트릭스 분석실 : '교육 사막(Educational Desert)' 도출</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:24px; font-weight:900; margin-top:45px; margin-bottom:14px; color:#111827;데이터 분석 전시관</h2>", unsafe_allow_html=True)
     st.markdown('<div class="bento-card">', unsafe_allow_html=True)
     
     quad_c1, quad_c2 = st.columns([1.2, 1])
@@ -334,14 +334,14 @@ if df_final is not None:
     with quad_c2:
         st.markdown("""
         <div style="padding-left:20px; border-left:5px solid #9333EA; height:100%;">
-            <div style="font-size:22px; font-weight:900; color:#9333EA; margin-bottom:18px;">💡 데이터 과학이 증명하는 격차의 실체</div>
+            <div style="font-size:22px; font-weight:900; color:#9333EA; margin-bottom:18px;">데이터 과학이 증명하는 격차의 실체</div>
             <p class="readable-desc">
                 <span class="readable-bold">학교별 외부 인프라 및 교통 데이터를 2차원 공간에 객관적으로 정렬한 매트릭스 지형도입니다.</span><br><br>
                 라벨 매핑 정형화를 통해 시각화한 결과, 전교생과 교사 인프라가 극단적으로 급감하는 소규모 <span class="readable-bold" style="color:#3B82F6;">C유형(소멸위기 학교)</span> 덩어리들이 주변 생활 인프라가 전무하고 대중교통이 완전히 고립된 <span class="readable-bold" style="color:#B91C1C;">3사분면 '교육 사막(Educational Desert)' 영역에 일목요연하게 밀집</span>되어 있는 모습을 확인할 수 있습니다.<br><br>
                 반면, 대규모 과부하 상태인 <span class="readable-bold" style="color:#EF4444;">A유형(과밀 학교)</span>은 교육 사막에 단 한 개도 속하지 않으며, 인프라와 교통망이 확보된 대도시 중심(1사분면) 및 개발 신도시(4사분면) 구역에만 정형적으로 분포합니다.
             </p>
             <div style="margin-top:20px; background-color:#FFF5F5; padding:18px; border-radius:12px; border:1px solid #FEE2E2;">
-                <span class="readable-bold" style="color:#B91C1C; font-size:16.5px;">⚠️ 획일적 교원 감축 정책이 중단되어야 하는 당위성</span><br>
+                <span class="readable-bold" style="color:#B91C1C; font-size:16.5px;">획일적 교원 감축 정책이 중단되어야 하는 당위성</span><br>
                 <p class="readable-desc" style="font-size:15.5px !important; margin-top:8px; margin-bottom:0px;">
                     3사분면 교육 사막 구역에 놓인 소규모 학교 아이들에게는 오직 <b>'학교의 존재와 선생님의 보장'만이 유일한 공교육 방어선</b>입니다. 단순 학생 수 감소율이라는 기계적 평균 수치에 속아 이 지역의 교사를 축소하는 것은 공교육의 완전한 포기입니다. 결핍 지역일수록 선생님을 더 늘리고 보존해야 하는 <b>'교감선생님' 프로젝트의 실증적 근거</b>입니다.
                 </p>
