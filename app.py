@@ -16,7 +16,7 @@ from sklearn.linear_model import LinearRegression
 # ==========================================
 st.set_page_config(page_title="교.감.선생님. - 오민도", layout="wide", initial_sidebar_state="collapsed")
 
-# 💡 가독성 극대화, 글꼴/색상 통일, 보라색 강조 CSS 주입
+# 💡 여백 확보 및 요소 사이즈 축소 CSS 주입
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
@@ -48,23 +48,23 @@ st.markdown("""
     .stSlider label {
         color: #111827 !important; 
         font-weight: 700 !important;
-        font-size: 15px !important;
+        font-size: 14px !important;
     }
     
-    /* 벤토 카드 디자인 여백 및 가독성 확장 */
+    /* 💡 답답함 해소: 벤토 카드 디자인 여백 확장 및 상하 분리감 강화 */
     .bento-card {
         background: #FFFFFF;
-        padding: 32px; 
+        padding: 28px; 
         border-radius: 18px;
         border: 1px solid #E5E7EB;
         box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
-        margin-bottom: 24px;
-        height: 100%; /* 카드 높이 맞춤 */
+        margin-bottom: 30px; /* 상하 여백 증가 */
+        height: 100%; 
     }
     
-    /* 메인 타이틀 및 로고 서체 크기 */
+    /* 메인 타이틀 크기 */
     .project-title {
-        font-size: 76px; 
+        font-size: 70px; 
         font-weight: 950;
         letter-spacing: -3px;
         color: #111827;
@@ -73,7 +73,7 @@ st.markdown("""
     }
     
     .project-subtitle {
-        font-size: 28px; 
+        font-size: 26px; 
         font-weight: 700;
         color: #4B5563;
         margin-bottom: 12px;
@@ -81,24 +81,24 @@ st.markdown("""
     }
     
     .team-sub {
-        font-size: 22px; 
+        font-size: 20px; 
         font-weight: 800;
         color: #9333EA;
         letter-spacing: 0.5px;
         margin-top: 5px;
-        margin-bottom: 45px;
+        margin-bottom: 55px; /* 타이틀과 본문 사이 띄움 */
     }
 
-    /* 💡 설명문 통일 서체 클래스 (일반 텍스트) */
+    /* 💡 답답함 해소: 본문 서체 크기 다이어트 (14.5px) */
     .readable-desc {
-        font-size: 15.5px !important;
+        font-size: 14.5px !important;
         line-height: 1.8 !important;
         color: #374151 !important;
         text-align: justify;
-        margin-bottom: 15px;
+        margin-bottom: 14px;
     }
     
-    /* 💡 핵심 논리 강조 전용 클래스 (보라색 + 굵게) */
+    /* 핵심 논리 강조 전용 클래스 */
     .purple-bold {
         font-weight: 800 !important;
         color: #9333EA !important;
@@ -107,13 +107,13 @@ st.markdown("""
         border-radius: 4px;
     }
     
-    /* 소제목 디자인 통일 */
+    /* 소제목 디자인 다이어트 */
     .section-title {
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 900;
         color: #111827;
-        margin-bottom: 16px;
-        margin-top: 20px;
+        margin-bottom: 14px;
+        margin-top: 18px;
         border-left: 5px solid #9333EA;
         padding-left: 12px;
     }
@@ -229,24 +229,24 @@ if df_final is not None:
     # KPI 요약 대시보드
     m1, m2, m3 = st.columns(3)
     with m1:
-        st.markdown(f'<div class="bento-card"><span style="color:#6B7280; font-size:14px; font-weight:700;">공간 빅데이터 분석 대상</span><br><span style="font-size:30px; font-weight:900; color:#111827;">{len(df_final):,} 개교</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="bento-card"><span style="color:#6B7280; font-size:13px; font-weight:700;">공간 빅데이터 분석 대상</span><br><span style="font-size:28px; font-weight:900; color:#111827;">{len(df_final):,} 개교</span></div>', unsafe_allow_html=True)
     with m2:
         total_students = df_final['학생수계'].sum() if '학생수계' in df_final.columns else 1
         total_teachers = df_final['수업교사총수'].sum() if '수업교사총수' in df_final.columns else 1
         avg_ratio = round(total_students / total_teachers, 1) if total_teachers > 1 else 13.8
-        st.markdown(f'<div class="bento-card"><span style="color:#6B7280; font-size:14px; font-weight:700;">전국 평균 교사 1인당 학생 수</span><br><span style="font-size:30px; font-weight:900; color:#9333EA;">{avg_ratio} 명</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="bento-card"><span style="color:#6B7280; font-size:13px; font-weight:700;">전국 평균 교사 1인당 학생 수</span><br><span style="font-size:28px; font-weight:900; color:#9333EA;">{avg_ratio} 명</span></div>', unsafe_allow_html=True)
     with m3:
         if '지역' in df_final.columns:
             top_region = df_final.groupby('지역')['최종_종합_인프라_점수'].mean().idxmax()
             region_text = f"{top_region}" if "시" in str(top_region) or "도" in str(top_region) else f"{top_region}특별시"
         else:
             region_text = "서울특별시"
-        st.markdown(f'<div class="bento-card"><span style="color:#6B7280; font-size:14px; font-weight:700;">점수 합이 가장 높은 지역</span><br><span style="font-size:30px; font-weight:900; color:#111827;">{region_text}</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="bento-card"><span style="color:#6B7280; font-size:13px; font-weight:700;">점수 합이 가장 높은 지역</span><br><span style="font-size:28px; font-weight:900; color:#111827;">{region_text}</span></div>', unsafe_allow_html=True)
 
     # ------------------------------------------
     # SECTION 1: 지형도 엔진 (전체 너비 유지)
     # ------------------------------------------
-    st.markdown("<h2 style='font-size:24px; font-weight:900; margin-bottom:8px; margin-top:20px; color:#111827;'>1. 대한민국 학교 유형별 분류 지도</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='font-size:22px; font-weight:900; margin-bottom:8px; margin-top:20px; color:#111827;'>1. 대한민국 학교 유형별 분류 지도</h2>", unsafe_allow_html=True)
     sample_size = st.slider("지도 시각화 학교 수 범위 조절", min_value=500, max_value=min(10000, len(df_final)), value=2500, step=500)
     
     _, map_center_col, _ = st.columns([1, 12, 1])
@@ -290,25 +290,26 @@ if df_final is not None:
             
         st_folium(m_real, height=500, use_container_width=True, returned_objects=[])
 
-    # 💡 [새로운 레이아웃] 좌우 2단 분할 (1열: 사분면 분석 / 2열: 박스플롯)
-    st.markdown("<h2 style='font-size:24px; font-weight:900; margin-top:55px; margin-bottom:14px; color:#111827;'>2. 실증 데이터 기반 교육 격차 및 원인 분석</h2>", unsafe_allow_html=True)
-    row1_col1, row1_col2 = st.columns(2)
+    # 💡 [여백 확장] gap="large" 속성을 주어 숨통을 틔웁니다.
+    st.markdown("<h2 style='font-size:22px; font-weight:900; margin-top:60px; margin-bottom:14px; color:#111827;'>2. 실증 데이터 기반 교육 격차 및 원인 분석</h2>", unsafe_allow_html=True)
+    row1_col1, row1_col2 = st.columns(2, gap="large")
     
     # ------------------------------------------
     # 좌측: SECTION 2 (인프라 매트릭스)
     # ------------------------------------------
     with row1_col1:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<div style='font-size:20px; font-weight:800; color:#111827; margin-bottom:15px;'>[분석 1] 인프라·교통 매트릭스 : '교육 사막' 도출</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size:19px; font-weight:800; color:#111827; margin-bottom:15px;'>[분석 1] 인프라·교통 매트릭스 : '교육 사막' 도출</div>", unsafe_allow_html=True)
         
-        fig_q, ax_q = plt.subplots(figsize=(6, 5), facecolor='white')
+        # 그래프 크기(figsize) 다이어트
+        fig_q, ax_q = plt.subplots(figsize=(5.5, 4.5), facecolor='white')
         ax_q.set_facecolor('#FFFFFF')
         
         q_infra = (df_sampled['최종_종합_인프라_점수'] - df_sampled['최종_종합_인프라_점수'].min()) / (df_sampled['최종_종합_인프라_점수'].max() - df_sampled['최종_종합_인프라_점수'].min()) * 100
         q_trans = (df_sampled['교통_점수'] - df_sampled['교통_점수'].min()) / (df_sampled['교통_점수'].max() - df_sampled['교통_점수'].min()) * 100
         plot_df = pd.DataFrame({'infra': q_infra, 'trans': q_trans, 'label': df_sampled['유형_라벨']})
         
-        sns.scatterplot(data=plot_df, x='infra', y='trans', hue='label', palette=scatter_color_map, alpha=0.7, s=50, ax=ax_q, edgecolor='none')
+        sns.scatterplot(data=plot_df, x='infra', y='trans', hue='label', palette=scatter_color_map, alpha=0.7, s=45, ax=ax_q, edgecolor='none')
         ax_q.axvline(x=50, color='#111827', linestyle='--', linewidth=1.2, alpha=0.5)
         ax_q.axhline(y=50, color='#111827', linestyle='--', linewidth=1.2, alpha=0.5)
         ax_q.axvspan(0, 50, ymin=0, ymax=0.5, color='#EF4444', alpha=0.06)
@@ -317,10 +318,10 @@ if df_final is not None:
         ax_q.set_ylim(-5, 105)
         ax_q.spines['top'].set_visible(False)
         ax_q.spines['right'].set_visible(False)
-        ax_q.set_xlabel('교육 및 문화 인프라 점수 (0 ~ 100)', color='#111827', fontweight='bold', fontsize=9)
-        ax_q.set_ylabel('대중교통 접근성 점수 (0 ~ 100)', color='#111827', fontweight='bold', fontsize=9)
+        ax_q.set_xlabel('교육 및 문화 인프라 점수 (0 ~ 100)', color='#111827', fontweight='bold', fontsize=8.5)
+        ax_q.set_ylabel('대중교통 접근성 점수 (0 ~ 100)', color='#111827', fontweight='bold', fontsize=8.5)
         
-        q_text_opts = {'fontsize': 8.5, 'fontweight': 'bold', 'color': '#374151', 'ha': 'center', 'va': 'center'}
+        q_text_opts = {'fontsize': 8, 'fontweight': 'bold', 'color': '#374151', 'ha': 'center', 'va': 'center'}
         ax_q.text(25, 85, "【 2사분면 】\n교통 편리 / 인프라 취약", **q_text_opts)
         ax_q.text(75, 85, "【 1사분면 】\n수도권 과밀 중심지", **q_text_opts)
         ax_q.text(75, 20, "【 4사분면 】\n외곽 신도시 주거군", **q_text_opts)
@@ -348,10 +349,11 @@ if df_final is not None:
     # ------------------------------------------
     with row1_col2:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<div style='font-size:20px; font-weight:800; color:#111827; margin-bottom:15px;'>[분석 2] 지역별 교사 분산 : '평균의 함정' 고발</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size:19px; font-weight:800; color:#111827; margin-bottom:15px;'>[분석 2] 지역별 교사 분산 : '평균의 함정' 고발</div>", unsafe_allow_html=True)
         
         if '교원1인당학생수' in df_final.columns and '지역' in df_final.columns:
-            fig_b, ax_b = plt.subplots(figsize=(6, 5), facecolor='white')
+            # 그래프 크기(figsize) 다이어트
+            fig_b, ax_b = plt.subplots(figsize=(5.5, 4.5), facecolor='white')
             ax_b.set_facecolor('#FFFFFF')
             region_order = df_final.groupby('지역')['교원1인당학생수'].median().sort_values(ascending=False).index
             
@@ -361,8 +363,8 @@ if df_final is not None:
             ax_b.spines['top'].set_visible(False)
             ax_b.spines['right'].set_visible(False)
             ax_b.set_xticklabels(ax_b.get_xticklabels(), rotation=45, ha='right', fontsize=8)
-            ax_b.set_xlabel('분석 대상 시·도 지역', color='#111827', fontweight='bold', fontsize=9)
-            ax_b.set_ylabel('교사 1인당 학생 수 (명)', color='#111827', fontweight='bold', fontsize=9)
+            ax_b.set_xlabel('분석 대상 시·도 지역', color='#111827', fontweight='bold', fontsize=8.5)
+            ax_b.set_ylabel('교사 1인당 학생 수 (명)', color='#111827', fontweight='bold', fontsize=8.5)
             ax_b.legend(frameon=False, loc='upper right', fontsize=8)
             
             max_y = min(df_final['교원1인당학생수'].max(), 35)
@@ -383,24 +385,25 @@ if df_final is not None:
         """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # 💡 [새로운 레이아웃] 좌우 2단 분할 (1열: 머신러닝 군집 / 2열: 회귀 시뮬레이터)
-    st.markdown("<h2 style='font-size:24px; font-weight:900; margin-top:20px; margin-bottom:14px; color:#111827;'>3. 머신러닝 예측 기반 미래 정책 제언</h2>", unsafe_allow_html=True)
-    row2_col1, row2_col2 = st.columns(2)
+    # 💡 [여백 확장] gap="large" 속성을 주어 숨통을 틔웁니다.
+    st.markdown("<h2 style='font-size:22px; font-weight:900; margin-top:40px; margin-bottom:14px; color:#111827;'>3. 머신러닝 예측 기반 미래 정책 제언</h2>", unsafe_allow_html=True)
+    row2_col1, row2_col2 = st.columns(2, gap="large")
 
     # ------------------------------------------
     # 좌측: SECTION 4 (머신러닝 군집)
     # ------------------------------------------
     with row2_col1:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<div style='font-size:20px; font-weight:800; color:#111827; margin-bottom:15px;'>[분석 3] 머신러닝 AI 군집 분석 결과</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size:19px; font-weight:800; color:#111827; margin-bottom:15px;'>[분석 3] 머신러닝 AI 군집 분석 결과</div>", unsafe_allow_html=True)
         
-        fig_c, ax_c = plt.subplots(figsize=(6, 5), facecolor='white')
+        # 그래프 크기(figsize) 다이어트
+        fig_c, ax_c = plt.subplots(figsize=(5.5, 4.5), facecolor='white')
         sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=scatter_color_map, alpha=0.7, s=40, ax=ax_c, edgecolor='none')
         ax_c.set_facecolor('#FFFFFF')
         ax_c.spines['top'].set_visible(False)
         ax_c.spines['right'].set_visible(False)
-        ax_c.set_xlabel('학생 수 (명)', color='#111827', fontweight='bold', fontsize=9)
-        ax_c.set_ylabel('교사 수 (명)', color='#111827', fontweight='bold', fontsize=9)
+        ax_c.set_xlabel('학생 수 (명)', color='#111827', fontweight='bold', fontsize=8.5)
+        ax_c.set_ylabel('교사 수 (명)', color='#111827', fontweight='bold', fontsize=8.5)
         ax_c.legend(frameon=False, fontsize=8)
         st.pyplot(fig_c)
         
@@ -426,7 +429,10 @@ if df_final is not None:
     # ------------------------------------------
     with row2_col2:
         st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<div style='font-size:20px; font-weight:800; color:#111827; margin-bottom:15px;'>[분석 4] 시계열 회귀 시뮬레이터 : 미래 예측</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size:19px; font-weight:800; color:#111827; margin-bottom:15px;'>[분석 4] 시계열 회귀 시뮬레이터 : 미래 예측</div>", unsafe_allow_html=True)
+        
+        # 💡 [핵심 복구 완료] 슬라이더 변수를 먼저 선언합니다!
+        target_year = st.slider("예측 목표 연도", min_value=2025, max_value=2030, value=2030, step=1)
         
         hist_years = np.array([2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024])
         hist_ratio = np.array([16.02, 15.38, 14.94, 14.65, 14.48, 14.21, 13.99, 13.79])
@@ -437,7 +443,8 @@ if df_final is not None:
         pred_bottleneck_base = [13.65, 13.55, 13.50, 13.48, 13.47, 13.46]
         pred_bottleneck = pred_bottleneck_base[:len(future_years)]
         
-        fig_p, ax_p = plt.subplots(figsize=(6, 5), facecolor='white')
+        # 그래프 크기(figsize) 다이어트
+        fig_p, ax_p = plt.subplots(figsize=(5.5, 4.5), facecolor='white')
         ax_p.plot(hist_years, hist_ratio, marker='o', color='#8B5CF6', linewidth=2.5, label='실제 통계 추이')
         if len(future_years) > 0:
             ax_p.plot(future_years, pred_trend, linestyle='--', marker='s', color='#C084FC', linewidth=1.8, label='기계적 추세선')
@@ -466,7 +473,7 @@ if df_final is not None:
 
     # 하단 출처 명시 (Full width)
     st.markdown("""
-        <div style="margin-top: 10px; padding: 20px; background-color: #FFFFFF; border-radius: 12px; border: 1px solid #E5E7EB; color: #6B7280; font-size: 14px; text-align: center;">
+        <div style="margin-top: 10px; padding: 20px; background-color: #FFFFFF; border-radius: 12px; border: 1px solid #E5E7EB; color: #6B7280; font-size: 13.5px; text-align: center;">
             <span style="font-weight: 800; color: #9333EA;">※ 학술적 실증 기반 :</span> 본 대시보드의 데이터 내러티브는 <b>한국노동사회연구소(2025)</b>, <b>국회미래연구원(2025)</b>, <b>국회예산정책처(2017)</b>의 정책 제언 및 경제 계량 프레임워크를 엄격히 준용하여 도출되었다.
         </div>
     """, unsafe_allow_html=True)
