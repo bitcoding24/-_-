@@ -16,7 +16,7 @@ from sklearn.linear_model import LinearRegression
 # ==========================================
 st.set_page_config(page_title="교.감.선생님. - 오민도", layout="wide", initial_sidebar_state="collapsed")
 
-# 💡 제목 극대화 및 가독성 요약 스타일 CSS 주입
+# 💡 박스 크기 통일, 제목 극대화 및 가독성 요약 스타일 CSS 주입
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
@@ -26,7 +26,7 @@ st.markdown("""
         background-color: #F8F9FA !important;
     }
 
-    /* 💡 메인 타이틀: 압도적인 크기와 존재감 */
+    /* 메인 타이틀: 압도적인 크기와 존재감 */
     .project-title {
         font-size: 110px !important; 
         font-weight: 900 !important;
@@ -54,7 +54,7 @@ st.markdown("""
         margin-bottom: 70px;
     }
 
-    /* 💡 요약 정리(Bullet Point) 가독성 스타일 */
+    /* 요약 정리(Bullet Point) 가독성 스타일 */
     .summary-box {
         margin-top: 20px;
     }
@@ -79,8 +79,15 @@ st.markdown("""
         border-radius: 24px;
         border: 1px solid #E5E7EB;
         box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.05);
-        height: 100%;
         margin-bottom: 20px;
+    }
+
+    /* 💡 [핵심 수정] 좌우 박스 크기를 완벽하게 맞추는 고정 높이 클래스 */
+    .grid-card {
+        min-height: 680px; 
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
     }
 
     .purple-bold {
@@ -103,6 +110,18 @@ st.markdown("""
         height: 24px;
         background: #9333EA;
         border-radius: 10px;
+    }
+
+    /* 💡 [핵심 수정] 하단 출처 검은색 및 디자인 명확화 */
+    .footer-box {
+        margin-top: 40px; 
+        padding: 25px; 
+        background: #FFFFFF; 
+        border-radius: 20px; 
+        border: 1px solid #E5E7EB; 
+        text-align: center;
+        color: #000000; /* 완전한 검은색 적용 */
+        font-size: 16px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -168,6 +187,9 @@ if df_final is not None:
 # 3. 메인 대시보드 렌더링
 # ==========================================
 if df_final is not None:
+    # 산점도 및 지도 통일 컬러맵
+    scatter_color_map = {'A유형': '#EF4444', 'B유형': '#22C55E', 'C유형': '#3B82F6'}
+
     # 💡 초대형 타이틀 섹션
     st.markdown('<p class="project-title">교.감.선생님.</p>', unsafe_allow_html=True)
     st.markdown('<p class="project-subtitle">교원 감소를 막기 위해 선생님을 늘리자!</p>', unsafe_allow_html=True)
@@ -181,14 +203,35 @@ if df_final is not None:
 
     # 1. 지도 엔진 (Full Width)
     st.markdown("<div class='section-header'>대한민국 학교 유형별 지리적 분포 현황</div>", unsafe_allow_html=True)
-    sample_size = st.slider("데이터 로드 범위 설정", 500, min(10000, len(df_final)), 2500)
+    sample_size = st.slider("지도 시각화 학교 수 범위 조절", 500, min(10000, len(df_final)), 2500)
     
     m_real = folium.Map(location=[36.2, 127.8], zoom_start=7, tiles='CartoDB positron')
     marker_cluster = MarkerCluster().add_to(m_real)
     df_sampled = df_final.sample(n=sample_size, random_state=42)
-    colors = {'A유형': '#EF4444', 'B유형': '#22C55E', 'C유형': '#3B82F6'}
+    
+    # 💡 [핵심 수정] 지도 점 색상 RGB 복구
     for _, row in df_sampled.iterrows():
-        folium.CircleMarker(location=[row['위도'], row['경도']], radius=5, color=colors.get(row['유형_라벨'], '#6B7280'), fill=True, fill_opacity=0.7).add_to(marker_cluster)
+        label_val = str(row['유형_라벨'])
+        if 'A' in label_val: marker_color = '#EF4444'     # 빨강 (과밀)
+        elif 'B' in label_val: marker_color = '#22C55E'   # 초록 (재정비)
+        elif 'C' in label_val: marker_color = '#3B82F6'   # 파랑 (소멸위기)
+        else: marker_color = '#6B7280'
+        
+        school_name = row['학교코드명'] if '학교코드명' in row else '학교명'
+        student_val = int(row['학생수계']) if not pd.isna(row['학생수계']) else 0
+        
+        html_content = f"<div style='font-size:13px; color:#111827;'><strong>{school_name}</strong><br>• 분류 유형: {label_val}<br>• 재적 학생수: {student_val}명</div>"
+        
+        folium.CircleMarker(
+            location=[row['위도'], row['경도']], 
+            radius=5, 
+            color=marker_color, 
+            fill=True, 
+            fill_color=marker_color, 
+            fill_opacity=0.8,
+            tooltip=folium.Tooltip(html_content)
+        ).add_to(marker_cluster)
+        
     st_folium(m_real, height=500, use_container_width=True, returned_objects=[])
 
     # 2. 2단 그리드 심층 분석
@@ -198,14 +241,14 @@ if df_final is not None:
     r1c1, r1c2 = st.columns(2, gap="large")
     
     with r1c1:
-        st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<div style='font-size:20px; font-weight:900; color:#111827;'>[분석 1] 교육 사막(3사분면) 도출</div>", unsafe_allow_html=True)
+        # grid-card 클래스를 추가하여 좌우 박스 높이 강제 통일
+        st.markdown('<div class="bento-card grid-card">', unsafe_allow_html=True)
+        st.markdown("<div style='font-size:20px; font-weight:900; color:#111827; margin-bottom:10px;'>[분석 1] 교육 사막(3사분면) 도출</div>", unsafe_allow_html=True)
         
-        # 그래프 비율 최적화
         fig, ax = plt.subplots(figsize=(6, 4.5)) 
         q_infra = (df_sampled['최종_종합_인프라_점수'] - df_sampled['최종_종합_인프라_점수'].min()) / (df_sampled['최종_종합_인프라_점수'].max() - df_sampled['최종_종합_인프라_점수'].min()) * 100
         q_trans = (df_sampled['교통_점수'] - df_sampled['교통_점수'].min()) / (df_sampled['교통_점수'].max() - df_sampled['교통_점수'].min()) * 100
-        sns.scatterplot(x=q_infra, y=q_trans, hue=df_sampled['유형_라벨'], palette=colors, alpha=0.6, s=40, ax=ax)
+        sns.scatterplot(x=q_infra, y=q_trans, hue=df_sampled['유형_라벨'], palette=scatter_color_map, alpha=0.6, s=40, ax=ax)
         ax.axvspan(0, 50, 0, 0.5, color='#EF4444', alpha=0.05)
         ax.set_xlabel('인프라 점수', fontsize=9); ax.set_ylabel('교통 접근성', fontsize=9)
         st.pyplot(fig)
@@ -220,19 +263,20 @@ if df_final is not None:
         st.markdown('</div>', unsafe_allow_html=True)
 
     with r1c2:
-        st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<div style='font-size:20px; font-weight:900; color:#111827;'>[분석 2] 평균의 함정(Box Plot) 고발</div>", unsafe_allow_html=True)
+        st.markdown('<div class="bento-card grid-card">', unsafe_allow_html=True)
+        st.markdown("<div style='font-size:20px; font-weight:900; color:#111827; margin-bottom:10px;'>[분석 2] 평균의 함정(Box Plot) 분석</div>", unsafe_allow_html=True)
         
         fig, ax = plt.subplots(figsize=(6, 4.5))
         order = df_final.groupby('지역')['교원1인당학생수'].median().sort_values(ascending=False).index
         sns.boxplot(data=df_final, x='지역', y='교원1인당학생수', order=order, palette='Purples', ax=ax, fliersize=1)
         ax.axhline(avg_ratio, color='#EF4444', ls='--')
         plt.xticks(rotation=45, fontsize=8); ax.set_ylim(0, 35)
+        ax.set_xlabel('시·도 지역', fontsize=9); ax.set_ylabel('교사 1인당 학생 수', fontsize=9)
         st.pyplot(fig)
         
         st.markdown(f"""
         <div class="summary-box">
-            <div class="summary-item"><span class="summary-icon">●</span><b>현황:</b> 경기는 30명을 돌파하는 <b>'과밀 수렁'</b>에, 지방은 2명대 <b>'소멸 위기'</b>에 놓여 데이터가 완전히 양극화되어 있다.</div>
+            <div class="summary-item"><span class="summary-icon">●</span><b>현황:</b> 경기는 30명을 돌파하는 <b>'과밀 문제'</b>에, 지방은 2명대 <b>'소멸 위기'</b>에 놓여 데이터가 완전히 양극화되어 있다.</div>
             <div class="summary-item"><span class="summary-icon">●</span><b>근거:</b> <span class="purple-bold">한국노동사회연구소(2025)</span>는 낡은 평균 지표(13명) 기반의 감축이 <b>실제 수업 담당 교사 부족</b>을 야기한다고 고발한다.</div>
             <div class="summary-item"><span class="summary-icon">●</span><b>결론:</b> 가짜 평균에 속아 교원을 줄이면 <b>'교사 이탈의 악순환'</b>이 발생하므로 실질 수업시수 기반 확충이 필요하다.</div>
         </div>
@@ -243,12 +287,13 @@ if df_final is not None:
     r2c1, r2c2 = st.columns(2, gap="large")
     
     with r2c1:
-        st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<div style='font-size:20px; font-weight:900; color:#111827;'>[분석 3] AI 기반 3대 학교 체급 분류</div>", unsafe_allow_html=True)
+        st.markdown('<div class="bento-card grid-card">', unsafe_allow_html=True)
+        st.markdown("<div style='font-size:20px; font-weight:900; color:#111827; margin-bottom:10px;'>[분석 3] 군집 알고리즘 기반 3대 학교 유형 분류</div>", unsafe_allow_html=True)
         
         fig, ax = plt.subplots(figsize=(6, 4.5))
-        sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=colors, alpha=0.7, ax=ax)
-        ax.set_xlabel('학생 수'); ax.set_ylabel('교사 수')
+        sns.scatterplot(data=df_final, x='학생수계', y='수업교사총수', hue='유형_라벨', palette=scatter_color_map, alpha=0.7, ax=ax)
+        ax.set_xlabel('학생 수', fontsize=9); ax.set_ylabel('교사 수', fontsize=9)
+        ax.legend(frameon=False, fontsize=8)
         st.pyplot(fig)
         
         st.markdown(f"""
@@ -261,8 +306,8 @@ if df_final is not None:
         st.markdown('</div>', unsafe_allow_html=True)
 
     with r2c2:
-        st.markdown('<div class="bento-card">', unsafe_allow_html=True)
-        st.markdown("<div style='font-size:20px; font-weight:900; color:#111827;'>[분석 4] 미래 수급 병목 리스크 예측</div>", unsafe_allow_html=True)
+        st.markdown('<div class="bento-card grid-card">', unsafe_allow_html=True)
+        st.markdown("<div style='font-size:20px; font-weight:900; color:#111827; margin-bottom:10px;'>[분석 4] 미래 교원 수급 리스크 예측(by 선형회귀)</div>", unsafe_allow_html=True)
         
         target_year = st.slider("예측 시뮬레이션 연도", 2025, 2030, 2030)
         hist_years = np.array([2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024])
@@ -288,9 +333,9 @@ if df_final is not None:
         """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # 하단 출처 (Full width)
+    # 💡 [핵심 수정] 하단 출처 검은색 텍스트 및 문구 변경 (Full width)
     st.markdown(f"""
-        <div style="margin-top: 40px; padding: 25px; background: #FFFFFF; border-radius: 20px; border: 1px solid #E5E7EB; text-align: center;">
-            <span style="font-weight: 800; color: #9333EA;">※ 학술적 실증 기반 :</span> 본 데이터 내러티브는 <b>한국노동사회연구소(2025)</b>, <b>국회미래연구원(2025)</b>, <b>국회예산정책처(2017)</b>의 연구를 엄격히 준용하였다.
+        <div class="footer-box">
+            <span style="font-weight: 800; color: #000000;">-학술적 기반 :</span> 본 데이터 분석 프로젝트는 <b>한국노동사회연구소(2025)</b>, <b>국회미래연구원(2025)</b>, <b>국회예산정책처(2017)</b>의 연구를 기반으로 진행하였다.
         </div>
     """, unsafe_allow_html=True)
