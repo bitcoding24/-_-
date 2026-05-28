@@ -82,7 +82,7 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* 💡 [핵심 수정] 좌우 박스 크기를 완벽하게 맞추는 고정 높이 클래스 */
+    /* 💡 좌우 박스 크기를 완벽하게 맞추는 고정 높이 클래스 */
     .grid-card {
         min-height: 680px; 
         display: flex;
@@ -112,7 +112,7 @@ st.markdown("""
         border-radius: 10px;
     }
 
-    /* 💡 [핵심 수정] 하단 출처 검은색 및 디자인 명확화 */
+    /* 💡 하단 출처 검은색 및 디자인 명확화 */
     .footer-box {
         margin-top: 40px; 
         padding: 25px; 
@@ -120,7 +120,7 @@ st.markdown("""
         border-radius: 20px; 
         border: 1px solid #E5E7EB; 
         text-align: center;
-        color: #000000; /* 완전한 검은색 적용 */
+        color: #000000; 
         font-size: 16px;
     }
     </style>
@@ -190,7 +190,7 @@ if df_final is not None:
     # 산점도 및 지도 통일 컬러맵
     scatter_color_map = {'A유형': '#EF4444', 'B유형': '#22C55E', 'C유형': '#3B82F6'}
 
-    # 💡 초대형 타이틀 섹션
+    # 초대형 타이틀 섹션
     st.markdown('<p class="project-title">교.감.선생님.</p>', unsafe_allow_html=True)
     st.markdown('<p class="project-subtitle">교원 감소를 막기 위해 선생님을 늘리자!</p>', unsafe_allow_html=True)
     st.markdown('<p class="team-sub">분석 및 기획 : 오민도</p>', unsafe_allow_html=True)
@@ -205,34 +205,80 @@ if df_final is not None:
     st.markdown("<div class='section-header'>대한민국 학교 유형별 지리적 분포 현황</div>", unsafe_allow_html=True)
     sample_size = st.slider("지도 시각화 학교 수 범위 조절", 500, min(10000, len(df_final)), 2500)
     
-    m_real = folium.Map(location=[36.2, 127.8], zoom_start=7, tiles='CartoDB positron')
-    marker_cluster = MarkerCluster().add_to(m_real)
-    df_sampled = df_final.sample(n=sample_size, random_state=42)
-    
-    # 💡 [핵심 수정] 지도 점 색상 RGB 복구
-    for _, row in df_sampled.iterrows():
-        label_val = str(row['유형_라벨'])
-        if 'A' in label_val: marker_color = '#EF4444'     # 빨강 (과밀)
-        elif 'B' in label_val: marker_color = '#22C55E'   # 초록 (재정비)
-        elif 'C' in label_val: marker_color = '#3B82F6'   # 파랑 (소멸위기)
-        else: marker_color = '#6B7280'
+    _, map_center_col, _ = st.columns([1, 12, 1])
+    with map_center_col:
+        m_real = folium.Map(location=[36.2, 127.8], zoom_start=7, tiles='CartoDB positron')
         
-        school_name = row['학교코드명'] if '학교코드명' in row else '학교명'
-        student_val = int(row['학생수계']) if not pd.isna(row['학생수계']) else 0
+        # 💡 [핵심 복구 완료] 숫자가 나오는 큰 원(클러스터)의 색상을 내부 마커의 '다수결'로 결정하는 JS 로직
+        icon_create_function = """
+        function(cluster) {
+            var markers = cluster.getAllChildMarkers();
+            var counts = {'#EF4444': 0, '#22C55E': 0, '#3B82F6': 0, '#6B7280': 0};
+            
+            // 1. 클러스터 안의 모든 마커 색상을 순회하며 카운트
+            for (var i = 0; i < markers.length; i++) {
+                var color = markers[i].options.color;
+                if (counts[color] !== undefined) counts[color]++;
+            }
+            
+            // 2. 가장 많이 포함된(다수결) 색상 찾기
+            var majorityColor = '#6B7280'; 
+            var maxCount = -1;
+            for (var color in counts) {
+                if (counts[color] > maxCount && counts[color] > 0) { 
+                    maxCount = counts[color]; 
+                    majorityColor = color; 
+                }
+            }
+            
+            // 3. 다수결 색상을 기반으로 클러스터 원(배경/내부)의 RGB 지정
+            var bgColors = {
+                '#EF4444': 'rgba(239, 68, 68, 0.4)',  // A유형 빨강 투명
+                '#22C55E': 'rgba(34, 197, 94, 0.4)',  // B유형 초록 투명
+                '#3B82F6': 'rgba(59, 130, 246, 0.4)', // C유형 파랑 투명
+                '#6B7280': 'rgba(107, 114, 128, 0.4)'
+            };
+            var innerColors = {
+                '#EF4444': 'rgba(239, 68, 68, 0.9)',  // A유형 빨강 진하게
+                '#22C55E': 'rgba(34, 197, 94, 0.9)',  // B유형 초록 진하게
+                '#3B82F6': 'rgba(59, 130, 246, 0.9)', // C유형 파랑 진하게
+                '#6B7280': 'rgba(107, 114, 128, 0.9)'
+            };
+            
+            return L.divIcon({
+                html: '<div style="background-color:' + bgColors[majorityColor] + '; border-radius:50%; width:40px; height:40px; display:flex; justify-content:center; align-items:center;"><div style="background-color:' + innerColors[majorityColor] + '; color:white; border-radius:50%; width:30px; height:30px; display:flex; justify-content:center; align-items:center; font-weight:700; font-size:13px;">' + cluster.getChildCount() + '</div></div>',
+                className: '', iconSize: L.point(40, 40)
+            });
+        }
+        """
+        marker_cluster = MarkerCluster(icon_create_function=icon_create_function).add_to(m_real)
+        df_sampled = df_final.sample(n=sample_size, random_state=42)
         
-        html_content = f"<div style='font-size:13px; color:#111827;'><strong>{school_name}</strong><br>• 분류 유형: {label_val}<br>• 재적 학생수: {student_val}명</div>"
-        
-        folium.CircleMarker(
-            location=[row['위도'], row['경도']], 
-            radius=5, 
-            color=marker_color, 
-            fill=True, 
-            fill_color=marker_color, 
-            fill_opacity=0.8,
-            tooltip=folium.Tooltip(html_content)
-        ).add_to(marker_cluster)
-        
-    st_folium(m_real, height=500, use_container_width=True, returned_objects=[])
+        # 개별 마커 렌더링
+        for _, row in df_sampled.iterrows():
+            label_val = str(row['유형_라벨'])
+            if 'A' in label_val: marker_color = '#EF4444'     # 빨강
+            elif 'B' in label_val: marker_color = '#22C55E'   # 초록
+            elif 'C' in label_val: marker_color = '#3B82F6'   # 파랑
+            else: marker_color = '#6B7280'
+            
+            school_name = row['학교코드명'] if '학교코드명' in row else '학교명'
+            student_val = int(row['학생수계']) if not pd.isna(row['학생수계']) else 0
+            
+            html_content = f"<div style='font-size:13px; color:#111827;'><strong>{school_name}</strong><br>• 분류 유형: {label_val}<br>• 재적 학생수: {student_val}명</div>"
+            
+            # 개별 원형 마커 생성 시 options.color를 명시적으로 전달해야 클러스터 JS에서 인식 가능
+            folium.CircleMarker(
+                location=[row['위도'], row['경도']], 
+                radius=5, 
+                color=marker_color, 
+                fill=True, 
+                fill_color=marker_color, 
+                fill_opacity=0.8,
+                tooltip=folium.Tooltip(html_content)
+            ).add_to(marker_cluster)
+            
+        st_folium(m_real, height=500, use_container_width=True, returned_objects=[])
 
     # 2. 2단 그리드 심층 분석
     st.markdown("<div class='section-header'>실증 데이터 기반 양극화 및 미래 예측 분석</div>", unsafe_allow_html=True)
@@ -241,7 +287,6 @@ if df_final is not None:
     r1c1, r1c2 = st.columns(2, gap="large")
     
     with r1c1:
-        # grid-card 클래스를 추가하여 좌우 박스 높이 강제 통일
         st.markdown('<div class="bento-card grid-card">', unsafe_allow_html=True)
         st.markdown("<div style='font-size:20px; font-weight:900; color:#111827; margin-bottom:10px;'>[분석 1] 교육 사막(3사분면) 도출</div>", unsafe_allow_html=True)
         
@@ -255,9 +300,9 @@ if df_final is not None:
         
         st.markdown(f"""
         <div class="summary-box">
-            <div class="summary-item"><span class="summary-icon">●</span><b>현황:</b> 인프라와 교통이 전무한 3사분면 '교육 사막'에 <b>C유형(소멸위기) 학교군이 100% 밀집</b>해 있다.</div>
-            <div class="summary-item"><span class="summary-icon">●</span><b>근거:</b> <span class="purple-bold">국회예산정책처(2017)</span>에 따르면 교육은 학생 수와 무관하게 유지되어야 하는 <b>'하방 경직적 고정 인프라'</b>이다.</div>
-            <div class="summary-item"><span class="summary-icon">●</span><b>결론:</b> 대안이 없는 결핍 지역일수록 기계적 감축을 중단하고 <b>최소 교원 정원을 국가가 보장</b>해야 한다.</div>
+            <div class="summary-item"><span class="summary-icon">●</span><div><b>현황:</b> 인프라와 교통이 전무한 3사분면 '교육 사막'에 <b>C유형(소멸위기) 학교군이 100% 밀집</b>해 있다.</div></div>
+            <div class="summary-item"><span class="summary-icon">●</span><div><b>근거:</b> <span class="purple-bold">국회예산정책처(2017)</span>에 따르면 교육은 학생 수와 무관하게 유지되어야 하는 <b>'하방 경직적 고정 인프라'</b>이다.</div></div>
+            <div class="summary-item"><span class="summary-icon">●</span><div><b>결론:</b> 대안이 없는 결핍 지역일수록 기계적 감축을 중단하고 <b>최소 교원 정원을 국가가 보장</b>해야 한다.</div></div>
         </div>
         """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
@@ -276,9 +321,9 @@ if df_final is not None:
         
         st.markdown(f"""
         <div class="summary-box">
-            <div class="summary-item"><span class="summary-icon">●</span><b>현황:</b> 경기는 30명을 돌파하는 <b>'과밀 문제'</b>에, 지방은 2명대 <b>'소멸 위기'</b>에 놓여 데이터가 완전히 양극화되어 있다.</div>
-            <div class="summary-item"><span class="summary-icon">●</span><b>근거:</b> <span class="purple-bold">한국노동사회연구소(2025)</span>는 낡은 평균 지표(13명) 기반의 감축이 <b>실제 수업 담당 교사 부족</b>을 야기한다고 고발한다.</div>
-            <div class="summary-item"><span class="summary-icon">●</span><b>결론:</b> 가짜 평균에 속아 교원을 줄이면 <b>'교사 이탈의 악순환'</b>이 발생하므로 실질 수업시수 기반 확충이 필요하다.</div>
+            <div class="summary-item"><span class="summary-icon">●</span><div><b>현황:</b> 경기는 30명을 돌파하는 <b>'과밀 문제'</b>에, 지방은 2명대 <b>'소멸 위기'</b>에 놓여 데이터가 완전히 양극화되어 있다.</div></div>
+            <div class="summary-item"><span class="summary-icon">●</span><div><b>근거:</b> <span class="purple-bold">한국노동사회연구소(2025)</span>는 낡은 평균 지표(13명) 기반의 감축이 <b>실제 수업 담당 교사 부족</b>을 야기한다고 고발한다.</div></div>
+            <div class="summary-item"><span class="summary-icon">●</span><div><b>결론:</b> 가짜 평균에 속아 교원을 줄이면 <b>'교사 이탈의 악순환'</b>이 발생하므로 실질 수업시수 기반 확충이 필요하다.</div></div>
         </div>
         """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
@@ -298,9 +343,9 @@ if df_final is not None:
         
         st.markdown(f"""
         <div class="summary-box">
-            <div class="summary-item"><span class="summary-icon">▶</span><b>A유형(과밀):</b> 학생 규모가 폭발적이라 <b>'수업 노동량'이 교사 수를 압도</b>하는 통계적 사각지대이다.</div>
-            <div class="summary-item"><span class="summary-icon">▶</span><b>B유형(중간):</b> 학령인구 감소의 사정권에 진입하여 <b>공간 리모델링 및 전략적 전환</b>이 필요한 군집이다.</div>
-            <div class="summary-item"><span class="summary-icon">▶</span><b>C유형(고립):</b> 전교생 급감으로 수치상 비율은 좋으나 <b>필수 교과 운영 정원</b>이 위협받는 최전방 구역이다.</div>
+            <div class="summary-item"><span class="summary-icon">▶</span><div><b>A유형(과밀):</b> 학생 규모가 폭발적이라 <b>'수업 노동량'이 교사 수를 압도</b>하는 통계적 사각지대이다.</div></div>
+            <div class="summary-item"><span class="summary-icon">▶</span><div><b>B유형(중간):</b> 학령인구 감소의 사정권에 진입하여 <b>공간 리모델링 및 전략적 전환</b>이 필요한 군집이다.</div></div>
+            <div class="summary-item"><span class="summary-icon">▶</span><div><b>C유형(고립):</b> 전교생 급감으로 수치상 비율은 좋으나 <b>필수 교과 운영 정원</b>이 위협받는 최전방 구역이다.</div></div>
         </div>
         """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
@@ -326,14 +371,14 @@ if df_final is not None:
         
         st.markdown(f"""
         <div class="summary-box">
-            <div class="summary-item"><span class="summary-icon">●</span><b>위기:</b> 기계적 감축 정책 시, 미래 교육 지표는 개선을 멈추고 <b>{bottleneck[-1]}명 선에서 동결(병목 현상)</b>된다.</div>
-            <div class="summary-item"><span class="summary-icon">●</span><b>근거:</b> <span class="purple-bold">국회미래연구원(2025)</span>은 지금을 공교육 질을 높일 <b>'질적 투자의 골든타임'</b>으로 명명한다.</div>
-            <div class="summary-item"><span class="summary-icon">●</span><b>제언:</b> 1차원적 삭감을 멈추고 <b>맞춤형 개별화 수업 실현</b>을 위해 선생님을 증원하는 패러다임 전환이 시급하다.</div>
+            <div class="summary-item"><span class="summary-icon">●</span><div><b>위기:</b> 기계적 감축 정책 시, 미래 교육 지표는 개선을 멈추고 <b>{bottleneck[-1]}명 선에서 동결(병목 현상)</b>된다.</div></div>
+            <div class="summary-item"><span class="summary-icon">●</span><div><b>근거:</b> <span class="purple-bold">국회미래연구원(2025)</span>은 지금을 공교육 질을 높일 <b>'질적 투자의 골든타임'</b>으로 명명한다.</div></div>
+            <div class="summary-item"><span class="summary-icon">●</span><div><b>제언:</b> 1차원적 삭감을 멈추고 <b>맞춤형 개별화 수업 실현</b>을 위해 선생님을 증원하는 패러다임 전환이 시급하다.</div></div>
         </div>
         """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # 💡 [핵심 수정] 하단 출처 검은색 텍스트 및 문구 변경 (Full width)
+    # 하단 출처 (Full width)
     st.markdown(f"""
         <div class="footer-box">
             <span style="font-weight: 800; color: #000000;">-학술적 기반 :</span> 본 데이터 분석 프로젝트는 <b>한국노동사회연구소(2025)</b>, <b>국회미래연구원(2025)</b>, <b>국회예산정책처(2017)</b>의 연구를 기반으로 진행하였다.
